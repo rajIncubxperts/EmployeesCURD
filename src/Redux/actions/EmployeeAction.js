@@ -28,6 +28,32 @@ export const getEmployeeAction = () => {
   };
 };
 
+export const deleteEmployeeAction = id => {
+  return async dispatch => {
+    await dispatch(loadingState(true))
+    const getParseData = await AsyncStorage.getItem('userInfo');
+    const convertPaeseData = JSON.parse(getParseData);
+    axios
+      .delete(`${BASE_URL}/Employee/${id}`, {
+        headers: {
+          Authorization:
+            convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
+        },
+      })
+      .then(async res => {
+        let resData = res.data;
+        console.log('Edit Employee Data ', resData);
+        // You can invoke sync or async actions with `dispatch`
+        await dispatch(getEmployeeAction());
+        await dispatch(loadingState(false))
+      })
+      .catch(e => {
+        dispatch(loadingState(false))
+        console.log(`Get Employee error ${e}`);
+      });
+  };
+};
+
 export const getEmployeeResponseData = data => {
   return {
     type: GET_EMPLOYEE_DATA,
