@@ -2,10 +2,12 @@ import { legacy_createStore as createStore, applyMiddleware, combineReducers } f
 import AuthReducer from '../Reducers/AuthReducer';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
+import EmployeeReducer from './../Reducers/EmployeeReducer';
 
 
 const rootReducer = combineReducers({
   AuthReducer,
+  EmployeeReducer
 });
 
 const configureStore = () => {
