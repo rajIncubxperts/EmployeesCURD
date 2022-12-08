@@ -19,7 +19,10 @@ import {Card, Title, Paragraph} from 'react-native-paper';
 import SimpleModal from '../../components/SimpleModal';
 import PropupModel from '../../components/PropupModel';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getEmployeeAction, deleteEmployeeAction} from '../../Redux/actions/EmployeeAction';
+import {
+  getEmployeeAction,
+  deleteEmployeeAction,
+} from '../../Redux/actions/EmployeeAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {authResponseData} from '../../Redux/actions/AuthAction';
 import {useFocusEffect} from '@react-navigation/native';
@@ -43,11 +46,10 @@ const Home = ({navigation}) => {
       })();
     }, []),
   );
-  
+
   const deleteHandler = async id => {
     await dispatch(deleteEmployeeAction(id));
   };
-
 
   const changeModalVisible = bool => {
     setisModalVisible(bool);
@@ -68,6 +70,7 @@ const Home = ({navigation}) => {
         {
           text: 'Yes',
           onPress: () => {
+            deleteHandler(item?.id);
             setShowBox(false);
           },
         },
@@ -112,7 +115,7 @@ const Home = ({navigation}) => {
 
                   <TouchableOpacity
                     style={styles.trash}
-                    // onPress={() => showConfirmDialog()}
+                    // onPress={() => }
                     onPress={() => deleteHandler(item?.id)}>
                     <FontAwesome5
                       name={'trash'}
@@ -140,7 +143,8 @@ const Home = ({navigation}) => {
                       size={22}
                       color="black"
                     />
-                    <Paragraph style={{paddingLeft: 5}}>{`${item?.location}`}</Paragraph>
+                    <Paragraph
+                      style={{paddingLeft: 5}}>{`${item?.location}`}</Paragraph>
                   </View>
 
                   <View style={{flexDirection: 'row', paddingLeft: 5}}>
@@ -151,7 +155,10 @@ const Home = ({navigation}) => {
                   </View>
                   <View style={{flexDirection: 'row', paddingLeft: 5}}>
                     <MaterialIcons name="call" size={22} color="black" />
-                    <Paragraph style={{paddingLeft: 5}}>{`#${item?.mobileNumber}`}</Paragraph>
+                    <Paragraph
+                      style={{
+                        paddingLeft: 5,
+                      }}>{`#${item?.mobileNumber}`}</Paragraph>
                   </View>
                 </Card.Content>
               </Card>

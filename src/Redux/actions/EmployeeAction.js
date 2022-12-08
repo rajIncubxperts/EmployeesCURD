@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {BASE_URL} from '../../Config/config';
-import {GET_EMPLOYEE_DATA, LOADING} from './../Types/types';
+import {GET_EMPLOYEE_DATA,EDIT_EMPLOYEE_DATA, LOADING} from './../Types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getEmployeeAction = () => {
@@ -52,6 +52,28 @@ export const deleteEmployeeAction = id => {
       });
   };
 };
+
+export const createEmployeeAction = (tempData, props) => {
+  return async dispatch => {
+    const getParseData = await AsyncStorage.getItem('userInfo');
+    const convertPaeseData = JSON.parse(getParseData);
+    axios
+      .post(`${BASE_URL}/Employee`, tempData, {
+        headers: {
+          Authorization:
+            convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
+        },
+      })
+      .then(async res => {
+        let resData = res.data;
+        console.log('Edit Employee Data ', resData);
+        props.navigation.goBack()
+      })
+      .catch(e => {
+        console.log(`Get Employee error ${e}`);
+      });
+  };
+}
 
 export const getEmployeeResponseData = data => {
   return {

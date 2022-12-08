@@ -23,6 +23,9 @@ import {useNavigation} from '@react-navigation/native';
 import {MaterialDialog} from 'react-native-material-dialog';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {errorFormHandler} from '../../Redux/actions/AuthAction';
+import { createEmployeeAction } from './../../Redux/actions/EmployeeAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const EmployeeForm = props => {
   const navigation = useNavigation();
@@ -34,8 +37,10 @@ const EmployeeForm = props => {
   const [desc, setDesc] = React.useState('');
   const [expertise, setExpertise] = useState('');
   const [aboutMe, setAboutMe] = useState('');
-  const onChangeText = text => setText(text);
+  //const onChangeText = text => setText(text);
   const [selected, setSelected] = React.useState('');
+  const [selectBlood, setSelectBlood] = React.useState("");
+  const [selectDept, setSelectDept] = React.useState("");
   const [phone, setPhone] = useState('');
   const [mobile, setMobile] = useState('');
   const [empImage, setEmpImage] = useState(null);
@@ -192,6 +197,34 @@ const EmployeeForm = props => {
     setEmpImage(tempObj);
   };
 
+
+  const saveHandler = async () => {
+    const tempObj = {
+      "isActive": true,
+      "createdBy": "string",
+      "createdAt": "2022-11-20T15:49:23.719Z",
+      "updatedBy": "",
+      "updatedAt": "2022-11-20T15:49:23.719Z",
+      "id": 0,
+      "firstName": firstName,
+      "lastName": lastName,
+      "workPhone": phone,
+      "mobileNumber": mobile,
+      "bloodGroup": selectBlood,
+      "jobDesc": jobDesc,
+      "expertise": expertise,
+      "aboutme": aboutMe,
+      "location": selected,
+      "department": selectDept,
+      "profileImage": empImage,
+      "joiningDate": "2022-11-20T15:49:23.719Z",
+      "salaryRevisionDate": "2022-11-20T15:49:23.719Z"
+    }
+
+    console.log(tempObj)
+    await dispatch(createEmployeeAction(tempObj, props))
+  }
+  
   return (
     <>
       {/* <MaterialDialog
@@ -298,7 +331,7 @@ const EmployeeForm = props => {
           </View>
           <View style={{margin: 5}} />
           <SelectList
-            setSelected={val => setSelected(val)}
+            setSelected={val => setSelectDept(val)}
             data={data}
             save="value"
             placeholder="Select Department"
@@ -416,7 +449,7 @@ const EmployeeForm = props => {
           )}
           <View style={{margin: 5}} />
           <SelectList
-            setSelected={val => setSelected(val)}
+            setSelected={val => setSelectBlood(val)}
             data={bloodGroup}
             save="value"
             placeholder="Select Blood Group"
