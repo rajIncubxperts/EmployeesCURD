@@ -19,7 +19,7 @@ import {Card, Title, Paragraph} from 'react-native-paper';
 import SimpleModal from '../../components/SimpleModal';
 import PropupModel from '../../components/PropupModel';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {getEmployeeAction} from '../../Redux/actions/EmployeeAction';
+import {getEmployeeAction, deleteEmployeeAction} from '../../Redux/actions/EmployeeAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {authResponseData} from '../../Redux/actions/AuthAction';
 import {useFocusEffect} from '@react-navigation/native';
@@ -43,6 +43,11 @@ const Home = ({navigation}) => {
       })();
     }, []),
   );
+  
+  const deleteHandler = async id => {
+    await dispatch(deleteEmployeeAction(id));
+  };
+
 
   const changeModalVisible = bool => {
     setisModalVisible(bool);
@@ -108,7 +113,7 @@ const Home = ({navigation}) => {
                   <TouchableOpacity
                     style={styles.trash}
                     // onPress={() => showConfirmDialog()}
-                    onPress={() => changeModalVisible(true)}>
+                    onPress={() => deleteHandler(item?.id)}>
                     <FontAwesome5
                       name={'trash'}
                       size={20}

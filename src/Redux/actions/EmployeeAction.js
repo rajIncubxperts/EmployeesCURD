@@ -43,7 +43,6 @@ export const deleteEmployeeAction = id => {
       .then(async res => {
         let resData = res.data;
         console.log('Edit Employee Data ', resData);
-        // You can invoke sync or async actions with `dispatch`
         await dispatch(getEmployeeAction());
         await dispatch(loadingState(false))
       })

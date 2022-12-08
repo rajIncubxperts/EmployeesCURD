@@ -9,16 +9,29 @@ import {
   Dimensions,
 } from 'react-native';
 import {ROUTES, COLORS} from '../constants';
+import {deleteEmployeeAction} from '../Redux/actions/EmployeeAction';
+import {useSelector, useDispatch} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { authResponseData } from './../../Redux/actions/AuthAction';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT_MODAL = 160;
 
 const PropupModel = props => {
+  
+  const deleteHandler = async id => {
+    await dispatch(deleteEmployeeAction(id));
+  };
+
   closeModal = (bool, data) => {
     props.changeModalVisible(bool);
     props.setData(data);
   };
 
+  
   return (
     <TouchableOpacity disabled={true} style={[styles.container]}>
       <View style={styles.modal}>
@@ -34,7 +47,7 @@ const PropupModel = props => {
         </View>
         <View style={styles.buttonView}>
           <TouchableOpacity
-            onPress={() => closeModal(false, 'Yes')}
+            onPress={() => deleteHandler(item?.id)}
             style={styles.touchableOpacity}>
             <Text
               style={[styles.text, {color: COLORS.blue, fontWeight: '400'}]}>
