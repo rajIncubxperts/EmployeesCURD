@@ -14,9 +14,6 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 import {useSelector, useDispatch} from 'react-redux';
 import {loginAction, errorHandler} from './../../Redux/actions/AuthAction';
-import {Formik, Form, Field} from 'formik';
-import * as Yup from 'yup';
-import Logo from '../../assets/icons/image2vector.svg';
 
 const Login = props => {
   const [username, setUserName] = useState('');

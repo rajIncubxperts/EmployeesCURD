@@ -13,7 +13,7 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
-import {COLORS, IMGS} from '../../constants';
+import {COLORS, IMGS, ROUTES} from '../../constants';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -23,9 +23,9 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 
-const EmployeeDetails = props => {
+const EmployeeDetails = ({route, navigation, title}) => {
   // This is to manage Modal State
-  const navigation = useNavigation();
+  //const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [username, setUserName] = useState('');
@@ -72,9 +72,7 @@ const EmployeeDetails = props => {
     <>
       <SafeAreaView style={{flex: 1}}>
         <View>
-          <TitleHeader
-            title="Yogeshwar Aher - #789"
-            navigation={props.navigation}></TitleHeader>
+          <TitleHeader title={title} navigation={navigation}></TitleHeader>
         </View>
         <ScrollView style={{marginHorizontal: 5}}>
           <View>
@@ -87,24 +85,25 @@ const EmployeeDetails = props => {
             </View>
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> Department</Text>-Finace
+                <Text style={{fontWeight: 'bold'}}> Department</Text>-
+                {`${route.params?.item?.department}`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> Location</Text>- Pune
+                <Text style={{fontWeight: 'bold'}}> Location</Text>- {`${route.params?.item?.location}`}
               </Text>
-              <Text style={styles.textcolor}>
+              <Text style={styles.textcolor}> 
                 <Text style={{fontWeight: 'bold'}}> Work Phone</Text>-
-                9879878798
+                {`${route.params?.item?.workPhone}`}
               </Text>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}>Salary Revision Due On</Text>
-                - 07 Oct 2022
+                - {`${route.params?.item?.salaryRevisionDate}`}
               </Text>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}>
                   <Text style={{fontWeight: 'bold'}}> Date of Joining</Text>
                 </Text>
-                - 07 Oct 2022
+                -{`${route.params?.item?.joiningDate}`}
               </Text>
             </View>
             <View style={{margin: 5}} />
@@ -117,10 +116,10 @@ const EmployeeDetails = props => {
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> Mobile Phone</Text> -
-                9879973788
+                {`${route.params?.item?.mobileNumber}`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> Blood Group</Text> - A-ve
+                <Text style={{fontWeight: 'bold'}}> Blood Group</Text> - {`${route.params?.item?.bloodGroup}`}
               </Text>
             </View>
             <View style={{margin: 5}} />
@@ -132,17 +131,17 @@ const EmployeeDetails = props => {
             </View>
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> Job Description</Text> - xyz
+                <Text style={{fontWeight: 'bold'}}> Job Description</Text> - {`${route.params?.item?.jobDesc}`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> About Me</Text> - hcdcd13333
+                <Text style={{fontWeight: 'bold'}}> About Me</Text> - {`${route.params?.item?.aboutme}`}
               </Text>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}>
-                  {' '}
+                
                   Ask Me About/Expertise
                 </Text>
-                - chbcdj
+                - {`${route.params?.item?.expertise}`}
               </Text>
             </View>
             <View style={{margin: 5}} />
@@ -210,7 +209,11 @@ const EmployeeDetails = props => {
           <View style={styles.body}>
             <TouchableOpacity
               style={styles.button}
-              onPress={toggleModalVisibility}>
+              onPress={() => {
+                global.tempActionType = '';
+                global.empId = '';
+                toggleModalVisibility();
+              }}>
               <FontAwesome5
                 name={'plus'}
                 size={20}
@@ -449,7 +452,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000000',
     paddingLeft: 15,
     shadowOpacity: 0.8,
-    color:COLORS.black,
+    color: COLORS.black,
     shadowRadius: 2,
     shadowOffset: {
       height: 1,

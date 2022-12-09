@@ -23,9 +23,7 @@ import {useNavigation} from '@react-navigation/native';
 import {MaterialDialog} from 'react-native-material-dialog';
 import {useSelector, useDispatch, shallowEqual} from 'react-redux';
 import {errorFormHandler} from '../../Redux/actions/AuthAction';
-import { createEmployeeAction } from './../../Redux/actions/EmployeeAction';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {createEmployeeAction} from './../../Redux/actions/EmployeeAction';
 
 const EmployeeForm = props => {
   const navigation = useNavigation();
@@ -39,8 +37,8 @@ const EmployeeForm = props => {
   const [aboutMe, setAboutMe] = useState('');
   //const onChangeText = text => setText(text);
   const [selected, setSelected] = React.useState('');
-  const [selectBlood, setSelectBlood] = React.useState("");
-  const [selectDept, setSelectDept] = React.useState("");
+  const [selectBlood, setSelectBlood] = React.useState('');
+  const [selectDept, setSelectDept] = React.useState('');
   const [phone, setPhone] = useState('');
   const [mobile, setMobile] = useState('');
   const [empImage, setEmpImage] = useState(null);
@@ -52,11 +50,8 @@ const EmployeeForm = props => {
   const {errorForm} = useSelector(state => state.AuthReducer);
   const dispatch = useDispatch();
   //const [visible, setVisible] = useState(true);
-
   // const [visible, setVisible] = React.useState(false);
-
   // const showDialog = () => setVisible(true);
-
   // const hideDialog = () => setVisible(false);
   const data = [
     {key: '1', value: 'Engineering'},
@@ -92,25 +87,31 @@ const EmployeeForm = props => {
       setText(text);
     }
   };
-  
+
   // On date change method
   const onToDateChange = (event, selectedDate) => {
     console.log('date testtttt', event, selectedDate);
     const currentDate = selectedDate || new Date();
     console.log('Date', currentDate);
     setShowJoinDatePicker(false);
-    setJoinDate(moment(currentDate, 'DD-MM-YYYY').format('DD-MM-YYYY'));
+    setJoinDate(
+      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
+    );
   };
+
   // On date change method
   const onToDateChangeAction = (event, selectedDate) => {
     console.log('date testtttt', event, selectedDate);
     const currentDate = selectedDate || new Date();
     console.log('Date', currentDate);
     setShowSalaryDatePicker(false);
-    setSrdonDate(moment(currentDate, 'DD-MM-YYYY').format('DD-MM-YYYY'));
+    setSrdonDate(
+      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
+    );
   };
+
   handleClick = () => {
-    console.log('Click happened');
+    // console.log('Click happened');
     var isError = false;
     var error = {};
     if (firstName == '') {
@@ -197,34 +198,33 @@ const EmployeeForm = props => {
     setEmpImage(tempObj);
   };
 
-
   const saveHandler = async () => {
     const tempObj = {
-      "isActive": true,
-      "createdBy": "string",
-      "createdAt": "2022-11-20T15:49:23.719Z",
-      "updatedBy": "",
-      "updatedAt": "2022-11-20T15:49:23.719Z",
-      "id": 0,
-      "firstName": firstName,
-      "lastName": lastName,
-      "workPhone": phone,
-      "mobileNumber": mobile,
-      "bloodGroup": selectBlood,
-      "jobDesc": jobDesc,
-      "expertise": expertise,
-      "aboutme": aboutMe,
-      "location": selected,
-      "department": selectDept,
-      "profileImage": empImage,
-      "joiningDate": "2022-11-20T15:49:23.719Z",
-      "salaryRevisionDate": "2022-11-20T15:49:23.719Z"
-    }
+      isActive: true,
+      createdBy: 'string',
+      createdAt: '2022-11-20T15:49:23.719Z',
+      updatedBy: '',
+      updatedAt: '2022-11-20T15:49:23.719Z',
+      id: 0,
+      firstName: firstName,
+      lastName: lastName,
+      workPhone: phone,
+      mobileNumber: mobile,
+      bloodGroup: selectBlood,
+      jobDesc: jobDesc,
+      expertise: expertise,
+      aboutme: aboutMe,
+      location: selected,
+      department: selectDept,
+      profileImage: empImage,
+      joiningDate: joinDate,
+      salaryRevisionDate: srdonDate,
+    };
+    console.log('Joining Date :-', joinDate);
+    console.log(tempObj);
+    await dispatch(createEmployeeAction(tempObj, props));
+  };
 
-    console.log(tempObj)
-    await dispatch(createEmployeeAction(tempObj, props))
-  }
-  
   return (
     <>
       {/* <MaterialDialog
@@ -540,7 +540,7 @@ const EmployeeForm = props => {
           value={new Date()}
           mode={'date'}
           maximumDate={new Date()}
-          is24Hour={true}
+          is24Hour={false}
           display="default"
           useCurrent={false}
           onChange={onToDateChange}

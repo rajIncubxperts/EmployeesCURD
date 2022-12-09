@@ -12,11 +12,9 @@ import React, {useState, useCallback} from 'react';
 import {COLORS, ROUTES} from '../../constants';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Card, Title, Paragraph} from 'react-native-paper';
-import SimpleModal from '../../components/SimpleModal';
 import PropupModel from '../../components/PropupModel';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {
@@ -90,6 +88,7 @@ const Home = ({navigation}) => {
         <TouchableNativeFeedback
           onPress={() => navigation.navigate('EmployeeDetails Tab', {item})}>
           <View>
+          <Spinner visible={isLoading} />
             {showBox && (
               <Card>
                 <Card.Content>
