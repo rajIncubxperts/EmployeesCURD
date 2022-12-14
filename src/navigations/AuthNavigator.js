@@ -67,7 +67,6 @@ function AuthNavigator() {
       <Stack.Screen
         name={ROUTES.LOGIN}
         component={Login}
-
         options={{
           title: 'React Native API',
           headerTintColor: COLORS.white,
@@ -76,7 +75,8 @@ function AuthNavigator() {
           },
         }}
       />
-      <Stack.Screen name={ROUTES.REGISTER} component={Register}  options={{
+      <Stack.Screen
+       name={ROUTES.REGISTER} component={Register}  options={{
           title: 'Register',
           headerTintColor: COLORS.white,
           headerStyle: {

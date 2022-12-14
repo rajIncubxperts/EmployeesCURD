@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {Button, HelperText} from 'react-native-paper';
 import {
   StyleSheet,
@@ -19,64 +19,180 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import TitleHeader from '../../components/TitleHeader';
+import {useFocusEffect} from '@react-navigation/native';
+import {useSelector, useDispatch} from 'react-redux';
+import Spinner from 'react-native-loading-spinner-overlay';
+import {
+  editEmployeeAction,
+  deleteEmployeeAction,
+} from './../../Redux/actions/EmployeeAction';
+import ProfileImg from '../../components/ProfileImg';
+import {errorFormHandler} from '../../Redux/actions/AuthAction';
 import {useNavigation} from '@react-navigation/native';
-
+import {sizeFont, sizeWidth} from './../../Utils/Size';
+import PropupModel from '../../components/PropupModel';
 const {width} = Dimensions.get('window');
 
-const EmployeeDetails = ({route, navigation, title}) => {
-  // This is to manage Modal State
-  //const navigation = useNavigation();
+const EmployeeDetails = ({title, route, navigation}) => {
+  const {editEmployeeData, isLoading} = useSelector(
+    state => state.EmployeeReducer,
+  );
+  const dispatch = useDispatch();
+
+  // const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisibles, setisModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [username, setUserName] = useState('');
   const [joinDate, setJoinDate] = useState('');
   const [srdonDate, setSrdonDate] = useState('');
   const [showJoinDatePicker, setShowJoinDatePicker] = useState(false);
+  const [showSalaryDatePicker, setShowSalaryDatePicker] = useState(false);
   const [showBox, setShowBox] = useState(true);
-
-  const showConfirmDialog = () => {
-    return Alert.alert(
-      'Delete Employee?',
-      'Are you sure you want to remove delete employee?',
-      [
-        // The "Yes" button
-        {
-          text: 'Yes',
-          onPress: () => {
-            setShowBox(false);
-          },
-        },
-        // The "No" button
-        // Does nothing but dismiss the dialog when tapped
-        {
-          text: 'No',
-        },
-      ],
-    );
-  };
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [jobDesc, setJobDesc] = useState('');
+  const [text, setText] = React.useState('');
+  const [desc, setDesc] = React.useState('');
+  const [expertise, setExpertise] = useState('');
+  const [aboutMe, setAboutMe] = useState('');
+  const [selected, setSelected] = React.useState('');
+  const [selectBlood, setSelectBlood] = React.useState('');
+  const [selectDept, setSelectDept] = React.useState('');
+  const [phone, setPhone] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [empImage, setEmpImage] = useState(null);
+  const [listItem, setListItem] = useState(null);
+  const [chooseData, setchooseData] = useState();
 
   // Create toggleModalVisibility function that will
   // Open and close modal upon button clicks.
   const toggleModalVisibility = () => {
     setModalVisible(!isModalVisible);
   };
+  const deleteHandler = async id => {
+    setisModalVisible(false);
+    setListItem(null);
+    await dispatch(deleteEmployeeAction(id));
+  };
+  const setData = data => {
+    setchooseData(data);
+  }
+
+  const changeModalVisible = bool => {
+    setisModalVisible(bool);
+  };
   // On date change method
   const onToDateChange = (event, selectedDate) => {
-    console.log('date testtttt', event);
+    console.log('date testtttt', event, selectedDate);
     const currentDate = selectedDate || new Date();
+    console.log('Date', currentDate);
     setShowJoinDatePicker(false);
-    setJoinDate(moment(currentDate, 'DD-MM-YYYY').format('DD-MM-YYYY'));
-    setSrdonDate(moment(currentDate, 'DD-MM-YYYY').format('DD-MM-YYYY'));
+    setJoinDate(
+      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
+    );
   };
+
+  // On date change method
+  const onToDateChangeAction = (event, selectedDate) => {
+    console.log('date testtttt', event, selectedDate);
+    const currentDate = selectedDate || new Date();
+    console.log('Date', currentDate);
+    setShowSalaryDatePicker(false);
+    setSrdonDate(
+      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
+    );
+  };
+  //  const base64Image = route.params?.item?.profileImage;
+  //  console.log("Profile Image",base64Image)
+  useEffect(() => {
+    dispatch(errorFormHandler({}));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        if (global.actionType == 'edit') {
+          await dispatch(editEmployeeAction(global.empId));
+          setTimeout(() => {
+            console.log(' GET EDIT  ', JSON.stringify(editEmployeeData));
+            if (editEmployeeData != null) {
+              setFirstName(editEmployeeData?.firstName);
+              setLastName(editEmployeeData?.lastName);
+              setPhone(editEmployeeData?.workPhone);
+              setMobile(editEmployeeData?.mobileNumber);
+              setExpertise(editEmployeeData?.expertise);
+              setJobDesc(editEmployeeData?.jobDesc);
+              setAboutMe(editEmployeeData?.aboutme);
+              setJoinDate(
+                moment(editEmployeeData?.joiningDate, 'DD-MM-YYYY')
+                  .toISOString()
+                  .substring(0, 10),
+              );
+              setSrdonDate(
+                moment(editEmployeeData?.salaryRevisionDate, 'DD-MM-YYYY')
+                  .toISOString()
+                  .substring(0, 10),
+              );
+              setEmpImage(editEmployeeData?.profileImage);
+              setSelectDept(editEmployeeData?.department);
+              setSelectBlood(editEmployeeData?.bloodGroup);
+            }
+          }, 500);
+        }
+      })();
+    }, [editEmployeeData]),
+  );
+
+  handleClicks = item => {
+    console.log('item here', item);
+    setListItem(item);
+    setisModalVisible(true);
+    console.log('Cliked Delete');   
+  };
+
+  handleEdits = item => {
+    {
+      global.actionType = 'edit';
+      global.tempActionType = 'edit';
+      global.empId = item?.id;
+      navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER);
+    }
+  };
+  const onAddWorkExp =  () => {
+    console.log("hchdchdc")
+  }
   return (
     <>
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isModalVisibles}
+        nRequestClose={() => changeModalVisible(false)}>
+        <PropupModel
+          deleteHandler={() => deleteHandler(listItem?.id)}
+          title="Delete Employee"
+          description="Are you sure you want to remove delete employee?"
+          changeModalVisible={changeModalVisible}
+          setData={setData}
+        />
+      </Modal>
       <SafeAreaView style={{flex: 1}}>
         <View>
-          <TitleHeader title={title} navigation={navigation}></TitleHeader>
+          <TitleHeader
+            title={`${route.params?.item?.firstName} ${route.params?.item?.lastName} - #${route.params?.item?.id}`}
+            onclick={handleClicks}
+            handleEdit={handleEdits}
+            navigation={navigation}></TitleHeader>
         </View>
         <ScrollView style={{marginHorizontal: 5}}>
           <View>
-            <Image source={IMGS.user} style={styles.userImg} />
+            <ProfileImg
+              updateImg={() => {
+                addImage();
+              }}
+              imagePass={empImage}
+            />
             <View style={{backgroundColor: COLORS.blue, padding: 10}}>
               <Text
                 style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
@@ -86,24 +202,25 @@ const EmployeeDetails = ({route, navigation, title}) => {
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> Department</Text>-
-                {`${route.params?.item?.department}`}
+                {`${editEmployeeData?.department}`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> Location</Text>- {`${route.params?.item?.location}`}
+                <Text style={{fontWeight: 'bold'}}> Location</Text>-
+                {`${editEmployeeData?.location}`}
               </Text>
-              <Text style={styles.textcolor}> 
+              <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> Work Phone</Text>-
-                {`${route.params?.item?.workPhone}`}
+                {`${editEmployeeData?.workPhone}`}
               </Text>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}>Salary Revision Due On</Text>
-                - {`${route.params?.item?.salaryRevisionDate}`}
+                - {`${editEmployeeData?.salaryRevisionDate}`}
               </Text>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}>
                   <Text style={{fontWeight: 'bold'}}> Date of Joining</Text>
                 </Text>
-                -{`${route.params?.item?.joiningDate}`}
+                -{`${editEmployeeData?.joiningDate}`}
               </Text>
             </View>
             <View style={{margin: 5}} />
@@ -116,10 +233,11 @@ const EmployeeDetails = ({route, navigation, title}) => {
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> Mobile Phone</Text> -
-                {`${route.params?.item?.mobileNumber}`}
+                {`${editEmployeeData?.mobileNumber}`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> Blood Group</Text> - {`${route.params?.item?.bloodGroup}`}
+                <Text style={{fontWeight: 'bold'}}> Blood Group</Text> -
+                {`${editEmployeeData?.bloodGroup}`}
               </Text>
             </View>
             <View style={{margin: 5}} />
@@ -131,17 +249,16 @@ const EmployeeDetails = ({route, navigation, title}) => {
             </View>
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> Job Description</Text> - {`${route.params?.item?.jobDesc}`}
+                <Text style={{fontWeight: 'bold'}}> Job Description</Text> -
+                {`${editEmployeeData?.jobDesc}`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}> About Me</Text> - {`${route.params?.item?.aboutme}`}
+                <Text style={{fontWeight: 'bold'}}> About Me</Text> -
+                {`${editEmployeeData?.aboutme}`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}>
-                
-                  Ask Me About/Expertise
-                </Text>
-                - {`${route.params?.item?.expertise}`}
+                <Text style={{fontWeight: 'bold'}}>Ask Me About/Expertise</Text>
+                - {`${editEmployeeData?.expertise}`}
               </Text>
             </View>
             <View style={{margin: 5}} />
@@ -238,14 +355,16 @@ const EmployeeDetails = ({route, navigation, title}) => {
                   value={inputValue}
                   style={styles.textInput}
                   onChangeText={value => setInputValue(value)}
+                  placeholderTextColor="grey"
                 />
                 <TextInput
                   placeholder="Job Title"
                   value={inputValue}
                   style={styles.textInput}
                   onChangeText={value => setInputValue(value)}
+                  placeholderTextColor="grey"
                 />
-                <View
+                {/* <View
                   onTouchEndCapture={() => {
                     setShowJoinDatePicker(true);
                   }}>
@@ -253,23 +372,43 @@ const EmployeeDetails = ({route, navigation, title}) => {
                     placeholder="Salary Revision Due On"
                     value={joinDate}
                     style={styles.textInputDate}
+                    placeholderTextColor= 'grey' 
+                  
                   />
-                </View>
+                </View> */}
                 <View
                   onTouchEndCapture={() => {
                     setShowJoinDatePicker(true);
                   }}>
                   <TextInput
+                    placeholder="Salary Revision Due On"
+                    placeholderTextColor="grey"
+                    style={styles.textInputDate}
+                    value={joinDate}
+                    onChangeText={text => {
+                      setJoinDate(text);
+                    }}
+                  />
+                </View>
+                <View
+                  onTouchEndCapture={() => {
+                    setShowSalaryDatePicker(true);
+                  }}>
+                  <TextInput
                     placeholder="Date of Joining"
                     value={srdonDate}
                     style={[styles.textInputbottom]}
+                    onChangeText={text => {
+                      setSrdonDate(text);
+                    }}
+                    placeholderTextColor="grey"
                   />
                 </View>
                 {/** This button is responsible to close the modal */}
                 {/* <Button title="Close" onPress={toggleModalVisibility} /> */}
                 <TouchableOpacity
                   style={styles.btnOkModal}
-                  onPress={toggleModalVisibility}>
+                  onPress={() => onAddWorkExp()}>
                   <Text style={{color: COLORS.blue}}>OK</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -292,6 +431,18 @@ const EmployeeDetails = ({route, navigation, title}) => {
           display="default"
           useCurrent={false}
           onChange={onToDateChange}
+        />
+      ) : null}
+      {showSalaryDatePicker ? (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={new Date()}
+          mode={'date'}
+          maximumDate={new Date()}
+          is24Hour={false}
+          display="default"
+          useCurrent={false}
+          onChange={onToDateChangeAction}
         />
       ) : null}
     </>
@@ -321,6 +472,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 110 / 2,
     alignSelf: 'center',
+    marginBottom: 15,
   },
   underlineTextStyle: {
     textDecorationLine: 'underline',
@@ -406,6 +558,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.2)',
     borderWidth: 1,
     marginBottom: 8,
+    color: 'black',
   },
   textInputDate: {
     width: width - 110,
@@ -416,6 +569,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 8,
     paddingRight: 60,
+    color: 'black',
   },
   textInputbottom: {
     width: width - 110,
@@ -426,6 +580,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 70,
     paddingRight: 85,
+    color: 'black',
   },
   btn: {
     width: 30,

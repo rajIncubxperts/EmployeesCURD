@@ -19,6 +19,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import {errorHandler, registerAction} from './../../Redux/actions/AuthAction';
 import {color} from 'react-native-reanimated';
+import { sizeFont, sizeWidth } from '../../Utils/Size';
 
 const Register = props => {
   // const {navigation} = props;
@@ -58,7 +59,7 @@ const Register = props => {
             ]}>
             <FontAwesome name="user" size={25} color={'grey'} />
             <TextInput
-              style={[styles.SecondBox]}
+              style={[styles.SecondBox, {color:'black'}]}
               {...errorReg}
               value={username}
               placeholder="Username"
@@ -71,6 +72,7 @@ const Register = props => {
                 );
                 setUserName(text);
               }}
+              placeholderTextColor= 'grey' 
             />
           </View>
           {errorReg.username == null ? null : (
@@ -88,7 +90,7 @@ const Register = props => {
               color={'grey'}
             />
             <TextInput
-              style={[styles.SecondBox]}
+              style={[styles.SecondBox, {color:'black'}]}
               value={email}
               placeholder="Email Address"
               onChangeText={text => {
@@ -101,6 +103,7 @@ const Register = props => {
 
                 setEmail(text);
               }}
+              placeholderTextColor= 'grey' 
             />
           </View>
           {errorReg.email == null ? null : (
@@ -114,7 +117,7 @@ const Register = props => {
             ]}>
             <FontAwesome name="lock" size={25} color={'grey'} />
             <TextInput
-              style={[styles.SecondBox]}
+              style={[styles.SecondBox, {color:'black'}]}
               placeholder="Password"
               value={password}
               secureTextEntry={isPasswordVisible ? false : true}
@@ -127,6 +130,7 @@ const Register = props => {
                 );
                 setPassword(text);
               }}
+              placeholderTextColor= 'grey' 
             />
             <TouchableOpacity
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
@@ -150,7 +154,7 @@ const Register = props => {
             ]}>
             <FontAwesome name="lock" size={25} color={'grey'} />
             <TextInput
-              style={[styles.SecondBox]}
+              style={[styles.SecondBox, {color:'black'}]}
               placeholder="Confirm Password"
               value={confirmpassword}
               secureTextEntry={isPasswordVisible2 ? false : true}
@@ -163,6 +167,7 @@ const Register = props => {
                 );
                 setConfirmPassword(text);
               }}
+              placeholderTextColor= 'grey' 
               autoCorrect={false}
             />
             <TouchableOpacity
@@ -231,7 +236,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   container: {
-    padding: 15,
+    padding: sizeWidth(4),
     width: '100%',
     position: 'relative',
     flex: 1,
@@ -263,7 +268,7 @@ const styles = StyleSheet.create({
   },
   // Login Btn Styles
   loginBtnWrapper: {
-    height: 55,
+    height: sizeWidth(15),
     marginTop: 12,
     shadowColor: '#000',
     shadowOffset: {
@@ -283,13 +288,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    height: 55,
+    height: sizeWidth(15),
     backgroundColor: COLORS.blue,
     borderRadius: 10,
   },
   loginText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: sizeFont(4),
     fontWeight: '400',
   },
   forgotPassText: {
@@ -301,7 +306,7 @@ const styles = StyleSheet.create({
   // footer
   footer: {
     position: 'absolute',
-    bottom: -15,
+    bottom: -sizeWidth(4),
     textAlign: 'center',
     flexDirection: 'row',
   },
@@ -339,11 +344,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     width: '100%',
-    paddingHorizontal: 10,
-    marginVertical: 10,
+    paddingHorizontal: sizeWidth(3),
+    marginVertical: sizeWidth(2.5),
   },
   SecondBox: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: sizeWidth(2.5),
   },
 });

@@ -1,12 +1,13 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BASE_URL} from '../../Config/config';
+import { BASE_URL } from '../../Config/config';
 import {
   AUTH_USER_DATA,
   ERROR,
   ERROR_FORM,
   ERROR_REG,
   LOADING,
+  SHOW_ALERT,
 } from './../Types/types';
 
 export const loginAction = (username, password) => {
@@ -25,12 +26,28 @@ export const loginAction = (username, password) => {
       dispatch(errorHandler(error, 'login'));
     } else {
       await dispatch(loadingState(true));
+      fetch(`${BASE_URL}/Login`, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        })
+      })
+        .then(res => {
+          res.json();
+        })
+        .then(data => console.log(data))  // ur data is here
+        .catch(err => console.log("api Erorr: ", err));
       axios
         .post(`${BASE_URL}/Login`, {
           username,
           password,
         })
         .then(async res => {
+          console.log('res >>>>>>>>>>>>>>>>> ', res);
           let userInfo = res.data;
           let Token = userInfo.result;
           console.log('Token', Token);
@@ -40,8 +57,9 @@ export const loginAction = (username, password) => {
           await dispatch(loadingState(false));
           AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
         })
-        .catch(e => {
-          console.log(`login error ${e}`);
+        .catch(({ error, response }) => {
+          console.log(`login error ${response?.data}`);
+          dispatch(showAlertState({ show: true, message: response.data?.message }));
           dispatch(loadingState(false));
         });
     }
@@ -128,12 +146,20 @@ const loadingState = data => {
   };
 };
 
+export const showAlertState = data => {
+  return {
+    type: SHOW_ALERT,
+    payload: data,
+  };
+};
+
 export const errorHandler = (data, type = '') => {
   return {
     type: type == 'login' ? ERROR : ERROR_REG,
     payload: data,
   };
 };
+
 export const errorFormHandler = data => {
   return {
     type: ERROR_FORM,

@@ -1,8 +1,9 @@
-import {GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA} from '../Types/types';
+import { GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA, LOADING } from '../Types/types';
 
 const initialState = {
   employeeData: null,
   editEmployeeData: null,
+  isLoading: false
 };
 
 const EmployeeReducer = (state = initialState, action) => {
@@ -16,6 +17,11 @@ const EmployeeReducer = (state = initialState, action) => {
       return {
         ...state,
         editEmployeeData: action.payload,
+      };
+    case LOADING:
+      return {
+        ...state,
+        isLoading: action.payload,
       };
     default:
       return state;

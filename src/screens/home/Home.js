@@ -20,15 +20,18 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {
   getEmployeeAction,
   deleteEmployeeAction,
+  editEmployeeResponseData,
 } from '../../Redux/actions/EmployeeAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {authResponseData} from '../../Redux/actions/AuthAction';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
+import {sizeFont, sizeWidth} from './../../Utils/Size';
 
 const Home = ({navigation}) => {
   const [showBox, setShowBox] = useState(true);
   const [isModalVisible, setisModalVisible] = useState(false);
+  const [listItem, setListItem] = useState(null);
   const [chooseData, setchooseData] = useState();
 
   const {employeeData, isLoading} = useSelector(state => state.EmployeeReducer);
@@ -36,6 +39,7 @@ const Home = ({navigation}) => {
 
   useFocusEffect(
     useCallback(() => {
+      dispatch(editEmployeeResponseData(null));
       dispatch(getEmployeeAction());
       (async () => {
         const getParseData = await AsyncStorage.getItem('userInfo');
@@ -46,6 +50,8 @@ const Home = ({navigation}) => {
   );
 
   const deleteHandler = async id => {
+    setisModalVisible(false);
+    setListItem(null);
     await dispatch(deleteEmployeeAction(id));
   };
 
@@ -81,87 +87,79 @@ const Home = ({navigation}) => {
     );
   };
 
-  const renderEmployeeList = ({item}) => {
-    console.log(item);
+  const renderEmployeeList = ({item, index}) => {
     return (
       <>
         <TouchableNativeFeedback
-          onPress={() => navigation.navigate('EmployeeDetails Tab', {item})}>
+          onPress={() => {
+            global.actionType = 'edit';
+            global.tempActionType = 'edit';
+            global.empId = item?.id;
+            navigation.navigate('EmployeeDetails Tab', {item});
+          }}>
           <View>
-          <Spinner visible={isLoading} />
-            {showBox && (
-              <Card>
-                <Card.Content>
-                  <Title
+            <Card>
+              <Card.Content>
+                <Title
+                  style={{
+                    textDecorationLine: 'underline',
+                    fontWeight: 'bold',
+                  }}>
+                  {`#${item.id}`}
+                </Title>
+                <TouchableOpacity
+                  style={styles.btn}
+                  onPress={() => {
+                    global.actionType = 'edit';
+                    global.tempActionType = 'edit';
+                    global.empId = item?.id;
+                    navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER);
+                  }}>
+                  <MaterialCommunityIcons
+                    name={'pencil'}
+                    size={25}
+                    color={COLORS.black}
+                    style={{alignSelf: 'center'}}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.trash}
+                  // onPress={() => }
+                  onPress={() => {
+                    setListItem(item);
+                    setisModalVisible(true);
+                  }}>
+                  <FontAwesome5
+                    name={'trash'}
+                    size={20}
+                    color={COLORS.black}
+                    style={{alignSelf: 'center'}}
+                  />
+                </TouchableOpacity>
+
+                <Title>{`${item?.firstName} ${item?.lastName}`}</Title>
+                <View style={{flexDirection: 'row', paddingLeft: sizeWidth(1)}}>
+                  <MaterialIcons name="location-city" size={22} color="black" />
+                  <Paragraph
+                    style={{paddingLeft: 5}}>{`${item?.location}`}</Paragraph>
+                </View>
+
+                <View style={{flexDirection: 'row', paddingLeft: sizeWidth(1)}}>
+                  <FontAwesome name="building-o" size={22} color="black" />
+                  <Paragraph style={{paddingLeft: 10}}>
+                    {`${item?.department}`}
+                  </Paragraph>
+                </View>
+                <View style={{flexDirection: 'row', paddingLeft: sizeWidth(1)}}>
+                  <MaterialIcons name="call" size={22} color="black" />
+                  <Paragraph
                     style={{
-                      textDecorationLine: 'underline',
-                      fontWeight: 'bold',
-                    }}>
-                    {`#${item.id}`}
-                  </Title>
-                  <TouchableOpacity
-                    style={styles.btn}
-                    onPress={() =>
-                      navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER)
-                    }>
-                    <MaterialCommunityIcons
-                      name={'pencil'}
-                      size={25}
-                      color={COLORS.black}
-                      style={{alignSelf: 'center'}}
-                    />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.trash}
-                    // onPress={() => }
-                    onPress={() => deleteHandler(item?.id)}>
-                    <FontAwesome5
-                      name={'trash'}
-                      size={20}
-                      color={COLORS.black}
-                      style={{alignSelf: 'center'}}
-                    />
-                  </TouchableOpacity>
-                  <Modal
-                    transparent={true}
-                    animationType="fade"
-                    visible={isModalVisible}
-                    nRequestClose={() => changeModalVisible(false)}>
-                    <PropupModel
-                      title="Delete Employee"
-                      description="Are you sure you want to remove delete employee?"
-                      changeModalVisible={changeModalVisible}
-                      setData={setData}
-                    />
-                  </Modal>
-                  <Title>{`${item?.firstName} ${item?.lastName}`}</Title>
-                  <View style={{flexDirection: 'row', paddingLeft: 5}}>
-                    <MaterialIcons
-                      name="location-city"
-                      size={22}
-                      color="black"
-                    />
-                    <Paragraph
-                      style={{paddingLeft: 5}}>{`${item?.location}`}</Paragraph>
-                  </View>
-
-                  <View style={{flexDirection: 'row', paddingLeft: 5}}>
-                    <FontAwesome name="building-o" size={22} color="black" />
-                    <Paragraph style={{paddingLeft: 10}}>
-                      {`${item?.department}`}
-                    </Paragraph>
-                  </View>
-                  <View style={{flexDirection: 'row', paddingLeft: 5}}>
-                    <MaterialIcons name="call" size={22} color="black" />
-                    <Paragraph
-                      style={{
-                        paddingLeft: 5,
-                      }}>{`#${item?.mobileNumber}`}</Paragraph>
-                  </View>
-                </Card.Content>
-              </Card>
-            )}
+                      paddingLeft: sizeWidth(1),
+                    }}>{`#${item?.mobileNumber}`}</Paragraph>
+                </View>
+              </Card.Content>
+            </Card>
           </View>
         </TouchableNativeFeedback>
         {/* <View style={styles.body}>
@@ -183,12 +181,38 @@ const Home = ({navigation}) => {
   return (
     <>
       <Spinner visible={isLoading} />
-
-      <FlatList
-        data={employeeData}
-        renderItem={renderEmployeeList}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isModalVisible}
+        nRequestClose={() => changeModalVisible(false)}>
+        <PropupModel
+          deleteHandler={() => deleteHandler(listItem?.id)}
+          title="Delete Employee"
+          description="Are you sure you want to remove delete employee?"
+          changeModalVisible={changeModalVisible}
+          setData={setData}
+        />
+      </Modal>
+      {employeeData && employeeData?.length == 0 ? (
+        <View
+          style={{alignItems: 'center', justifyContent: 'flex-end', flex: 1}}>
+          <Text
+            style={{
+              textAlign: 'center',
+              fontSize: sizeFont(4),
+              fontWeight: '500',
+            }}>
+            No Employees found
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={employeeData}
+          renderItem={renderEmployeeList}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
       <View style={styles.body}>
         <TouchableOpacity
           style={styles.button}
@@ -216,15 +240,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   button: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: sizeWidth(15),
+    height: sizeWidth(15),
+    borderRadius: sizeWidth(15),
     backgroundColor: COLORS.blue,
     justifyContent: 'center',
     alignContent: 'center',
     position: 'absolute',
-    bottom: 10,
-    right: 10,
+    bottom: sizeWidth(4),
+    right: sizeWidth(4),
     elevation: 5,
   },
   btn: {

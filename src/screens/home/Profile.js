@@ -1,40 +1,47 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Image,
   View,
-  Platform,
   TouchableOpacity,
   Text,
   StyleSheet,
   SafeAreaView,
   Alert,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PropTypes from 'prop-types';
+import { sizeWidth } from './../../Utils/Size';
 
 const Profile = props => {
   const [image, setImage] = useState(null);
 
-  useEffect(() => {}, [props.imagePass]);
+  useEffect(() => { }, [props.imagePass]);
 
   return (
     <SafeAreaView>
       <View style={imageUploaderStyles.container}>
         {props.imagePass && (
-          <Image
-            style={{
-              height: 150,
-              width: 150,
-            }}
-            source={{uri: props.imagePass}}
-          />
+          <View style={{
+            elevation: 2,
+            borderRadius: 999,
+            overflow: "hidden",
+            height: sizeWidth(30),
+            width: sizeWidth(30),
+          }} >
+            <Image
+              style={{
+                height: sizeWidth(30),
+                width: sizeWidth(30),
+              }}
+              source={{ uri: props.imagePass }}
+            />
+          </View>
         )}
         <View style={imageUploaderStyles.uploadBtnContainer}>
           <TouchableOpacity
             onPress={() => props.updateImg()}
             style={imageUploaderStyles.uploadBtn}>
-            <Text>{props.imagePass ? 'Edit' : 'Upload'} Image</Text>
-            <Ionicons name="camera" size={15} color="black" />
+            <MaterialIcons name="edit" size={20} color="black" />
           </TouchableOpacity>
         </View>
       </View>
@@ -44,24 +51,34 @@ const Profile = props => {
 
 const imageUploaderStyles = StyleSheet.create({
   container: {
+    height: sizeWidth(30),
+    width: sizeWidth(30),
     elevation: 2,
-    height: 100,
-    width: 110,
     backgroundColor: '#efefef',
     position: 'relative',
     borderRadius: 999,
-    overflow: 'hidden',
     alignSelf: 'center',
     margin: 8,
   },
   uploadBtnContainer: {
-    opacity: 0.7,
+    alignItems: "center",
+    justifyContent: 'center',
     position: 'absolute',
     right: 0,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
     bottom: 0,
-    backgroundColor: 'lightgrey',
-    width: '100%',
-    height: '35%',
+    borderRadius: 30,
+    backgroundColor: 'white',
+    width: '35%',
+    height: '37%',
   },
   uploadBtn: {
     display: 'flex',

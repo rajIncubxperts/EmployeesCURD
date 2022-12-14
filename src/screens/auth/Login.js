@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, { useContext, useCallback, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,21 +7,32 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
-import {COLORS, ROUTES} from '../../constants';
-import {useNavigation} from '@react-navigation/native';
+import { COLORS, ROUTES } from '../../constants';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
-import {useSelector, useDispatch} from 'react-redux';
-import {loginAction, errorHandler} from './../../Redux/actions/AuthAction';
+import { useSelector, useDispatch } from 'react-redux';
+import { loginAction, errorHandler, showAlertState } from './../../Redux/actions/AuthAction';
+import { sizeFont, sizeWidth } from './../../Utils/Size';
 
 const Login = props => {
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const {userData, isLoading, error} = useSelector(state => state.AuthReducer);
+  const { showAlert, showAlertMessage, userData, isLoading, error } = useSelector(state => state.AuthReducer);
   const dispatch = useDispatch();
+
+  useFocusEffect(
+    useCallback(() => {
+      setUserName("")
+      setPassword("")
+      setIsPasswordVisible(false)
+    }, [],)
+  )
+
 
   const userLogin = async () => {
     //debugger;
@@ -31,9 +42,30 @@ const Login = props => {
       Alert.alert('Something went wrong please try different password');
     }
   };
+
   const navigation = useNavigation();
+
+  const customAlertModal = () => (
+    <Modal
+      visible={showAlert}
+      transparent={true}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.alertLightView} >
+        <View style={styles.alertBoxView} >
+          <Text style={{ textAlign: "center", fontWeight: "bold", fontSize: sizeFont(5), }} >{"Error"}</Text>
+          <Text style={{ marginVertical: 10, textAlign: "center", fontWeight: "500", fontSize: sizeFont(4), }} >{showAlertMessage}</Text>
+          <Text onPress={() => {
+            dispatch(showAlertState({ show: false, message: "" }))
+          }} style={{ marginEnd: 5, textAlign: "right", fontWeight: "bold", fontSize: sizeFont(5), }} >{"Ok"}</Text>
+        </View>
+      </View>
+    </Modal>
+  )
+
   return (
     <SafeAreaView style={styles.main}>
+      {customAlertModal()}
       <View style={styles.container}>
         {/* <View style={styles.row}>
               <Logo width={100} height={70} style={styles.mr7} />
@@ -44,12 +76,12 @@ const Login = props => {
 
           <View
             style={[
-              {borderColor: error.username ? 'red' : null, borderWidth: 1},
+              { borderColor: error.username ? 'red' : null, borderWidth: 1 },
               styles.mainBox,
             ]}>
             <FontAwesome name="user" size={25} color={'grey'} />
             <TextInput
-              style={[styles.SecondBox]}
+              style={[styles.SecondBox, {color:'black'}]}
               value={username}
               placeholder="Username"
               onChangeText={text => {
@@ -64,20 +96,21 @@ const Login = props => {
                 );
                 setUserName(text);
               }}
+               placeholderTextColor= 'grey' 
             />
           </View>
           {error.username == null ? null : (
-            <Text style={{color: 'red'}}>{error.username}</Text>
+            <Text style={{ color: 'red' }}>{error.username}</Text>
           )}
 
           <View
             style={[
-              {borderColor: error.password ? 'red' : null, borderWidth: 2},
+              { borderColor: error.password ? 'red' : null, borderWidth: 2 },
               styles.mainBox,
             ]}>
             <FontAwesome name="lock" size={25} color={'grey'} />
             <TextInput
-              style={[styles.SecondBox]}
+              style={[styles.SecondBox, {color:'black'}]}
               placeholder="Password"
               value={password}
               secureTextEntry={isPasswordVisible ? false : true}
@@ -93,6 +126,7 @@ const Login = props => {
                 );
                 setPassword(text);
               }}
+              placeholderTextColor= 'grey' 
             />
             <TouchableOpacity
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
@@ -104,7 +138,7 @@ const Login = props => {
             </TouchableOpacity>
           </View>
           {error.password == null ? null : (
-            <Text style={{color: 'red'}}>{error.password}</Text>
+            <Text style={{ color: 'red' }}>{error.password}</Text>
           )}
 
           <View style={styles.loginBtnWrapper}>
@@ -125,7 +159,7 @@ const Login = props => {
           {/******************** REGISTER BUTTON *********************/}
           <TouchableOpacity
             onPress={() => navigation.navigate(ROUTES.REGISTER)}>
-            <Text style={[styles.signupBtn, {textDecorationLine: 'underline'}]}>Sign Up</Text>
+            <Text style={[styles.signupBtn, { textDecorationLine: 'underline' }]}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -138,10 +172,29 @@ export default Login;
 const styles = StyleSheet.create({
   main: {
     flexDirection: 'row',
- 
+  },
+  alertLightView: {
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    alignItems: "center",
+    justifyContent: 'center',
+    flex: 1
+  },
+  alertBoxView: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    padding: sizeWidth(3.5),
+    width: '80%'
   },
   container: {
-    padding: 15,
+    padding: sizeWidth(4),
     width: '100%',
     position: 'relative',
     flex: 1,
@@ -156,10 +209,10 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   loginContinueTxt: {
-    fontSize: 21,
+    fontSize: sizeFont(5.5),
     textAlign: 'center',
     color: COLORS.gray,
-    marginBottom: 16,
+    marginBottom: sizeWidth(4),
     fontWeight: 'bold',
   },
   input: {
@@ -173,8 +226,8 @@ const styles = StyleSheet.create({
   },
   // Login Btn Styles
   loginBtnWrapper: {
-    height: 55,
-    marginTop: 12,
+    height: sizeWidth(15),
+    marginTop: sizeWidth(2),
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -193,13 +246,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    height: 55,
+    height: sizeWidth(15),
     backgroundColor: COLORS.blue,
     borderRadius: 10,
   },
   loginText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: sizeFont(4),
     fontWeight: '400',
   },
   forgotPassText: {
@@ -211,7 +264,7 @@ const styles = StyleSheet.create({
   // footer
   footer: {
     position: 'absolute',
-    bottom: -15,
+    bottom: -sizeWidth(4),
     textAlign: 'center',
     flexDirection: 'row',
   },
@@ -243,11 +296,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     width: '100%',
-    paddingHorizontal: 10,
-    marginVertical: 10,
+    paddingHorizontal: sizeWidth(3),
+    marginVertical: sizeWidth(2.5),
   },
   SecondBox: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: sizeWidth(2.5),
   },
 });

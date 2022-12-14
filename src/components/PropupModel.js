@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,20 +8,22 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import {ROUTES, COLORS} from '../constants';
-import {deleteEmployeeAction} from '../Redux/actions/EmployeeAction';
-import {useSelector, useDispatch} from 'react-redux';
+import { ROUTES, COLORS } from '../constants';
+import { deleteEmployeeAction } from '../Redux/actions/EmployeeAction';
+import { useSelector, useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { authResponseData } from './../../Redux/actions/AuthAction';
+import { sizeWidth } from '../Utils/Size';
+import { sizeFont } from './../Utils/Size';
 
 const WIDTH = Dimensions.get('window').width;
 const HEIGHT_MODAL = 160;
 
 const PropupModel = props => {
-  
+
   const deleteHandler = async id => {
     await dispatch(deleteEmployeeAction(id));
   };
@@ -31,7 +33,7 @@ const PropupModel = props => {
     props.setData(data);
   };
 
-  
+
   return (
     <TouchableOpacity disabled={true} style={[styles.container]}>
       <View style={styles.modal}>
@@ -39,7 +41,7 @@ const PropupModel = props => {
           <Text
             style={[
               styles.text,
-              {fontSize: 20, marginBottom: 20, fontWeight: 'bold'},
+              { fontSize: sizeFont(5), marginBottom: sizeWidth(5), fontWeight: 'bold' },
             ]}>
             {props.title}
           </Text>
@@ -47,10 +49,10 @@ const PropupModel = props => {
         </View>
         <View style={styles.buttonView}>
           <TouchableOpacity
-            onPress={() => deleteHandler(item?.id)}
+            onPress={() => props?.deleteHandler()}
             style={styles.touchableOpacity}>
             <Text
-              style={[styles.text, {color: COLORS.blue, fontWeight: '400'}]}>
+              style={[styles.text, { color: COLORS.blue, fontWeight: '400' }]}>
               Yes
             </Text>
           </TouchableOpacity>
@@ -58,7 +60,7 @@ const PropupModel = props => {
             onPress={() => closeModal(false, 'No')}
             style={styles.touchableOpacity}>
             <Text
-              style={[styles.text, {color: COLORS.blue, fontWeight: '400'}]}>
+              style={[styles.text, { color: COLORS.blue, fontWeight: '400' }]}>
               No
             </Text>
           </TouchableOpacity>
@@ -85,11 +87,11 @@ const styles = StyleSheet.create({
   },
   textView: {
     flex: 1,
-    marginLeft: 20,
+    marginLeft: sizeWidth(5),
   },
   text: {
-    margin: 5,
-    fontSize: 16,
+    margin: sizeWidth(5),
+    fontSize: sizeFont(5),
     fontWeight: 'bold',
   },
   text: {
@@ -99,13 +101,13 @@ const styles = StyleSheet.create({
     width: '40%',
     flexDirection: 'row',
     alignSelf: 'flex-end',
-    marginBottom: 10,
+    marginBottom: sizeWidth(3),
     elevation: 20,
     shadowColor: '#52006A',
   },
   touchableOpacity: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: sizeWidth(3),
     alignItems: 'center',
   },
 });

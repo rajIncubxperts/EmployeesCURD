@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,11 +9,12 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {COLORS, ROUTES} from '../constants';
-import {useNavigation} from '@react-navigation/native';
+import { COLORS } from '../constants';
+import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { sizeFont, sizeWidth } from './../Utils/Size';
 
-function CreateEmpHeader({onclick, ...props }) {
+function CreateEmpHeader({ onclick, ...props }) {
   const navigation = useNavigation();
   return (
     <View style={[styles.container, props.style]}>
@@ -21,7 +22,6 @@ function CreateEmpHeader({onclick, ...props }) {
         backgroundColor='#165fa8'
         animated
         translucent={true}
-        styles={{width: 100}}
       />
       <View style={styles.header}>
         <View style={styles.headerBack}>
@@ -35,7 +35,7 @@ function CreateEmpHeader({onclick, ...props }) {
               />
             </TouchableOpacity>
             <Text style={styles.title}> {props.title}</Text>
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity
                 onPress={onclick}>
                 <Text style={styles.pencil}> {props.titleright}</Text>
@@ -51,7 +51,7 @@ function CreateEmpHeader({onclick, ...props }) {
 const styles = StyleSheet.create({
   container: {},
   header: {
-    height: 110,
+    height: sizeWidth(27),
   },
   headerBack: {
     width: '100%',
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.blue,
   },
   headerControlBar: {
-    marginTop: 60,
+    marginTop: sizeWidth(15),
     width: '85%',
     alignSelf: 'center',
     flexDirection: 'row',
@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
   headerBack_imageStyle: {},
   headerImage: {
     flexDirection: 'column',
-    width: 150,
-    height: 150,
+    width: sizeWidth(30),
+    height: sizeWidth(30),
     alignSelf: 'center',
     justifyContent: 'center',
   },
@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
 
   title: {
     color: '#FFFFFF',
-    fontSize: 18,
-    top: -20,
+    fontSize: sizeFont(4.5),
+    top: -sizeFont(5),
     width: '75%',
   },
   pencil: {

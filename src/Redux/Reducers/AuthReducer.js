@@ -1,11 +1,13 @@
-import { AUTH_USER_DATA, ERROR, ERROR_FORM, ERROR_REG, LOADING } from '../Types/types';
+import { AUTH_USER_DATA, ERROR, ERROR_FORM, ERROR_REG, LOADING, SHOW_ALERT } from '../Types/types';
 
 const initialState = {
   userData: null,
   isLoading: false,
   error: {},
   errorReg: {},
-  errorForm: {}
+  errorForm: {},
+  showAlert: false,
+  showAlertMessage: "",
 };
 
 const AuthReducer = (state = initialState, action) => {
@@ -14,6 +16,12 @@ const AuthReducer = (state = initialState, action) => {
       return {
         ...state,
         userData: action.payload,
+      };
+    case SHOW_ALERT:
+      return {
+        ...state,
+        showAlert: action.payload?.show,
+        showAlertMessage: action.payload?.message,
       };
     case LOADING:
       return {

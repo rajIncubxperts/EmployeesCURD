@@ -7,15 +7,16 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {createDrawerNavigator} from '@react-navigation/drawer';
-import {COLORS, ROUTES} from '../constants';
-import {EmployeeForm, Home, EmployeeDetails} from '../screens';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { COLORS, ROUTES } from '../constants';
+import { EmployeeForm, Home, EmployeeDetails } from '../screens';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Octicons from 'react-native-vector-icons/Octicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomDrawer from '../components/CustomDrawer';
+import { sizeWidth } from '../Utils/Size';
 
 const Drawer = createDrawerNavigator();
 
@@ -28,7 +29,7 @@ function DrawerNavigator() {
         drawerActiveBackgroundColor: COLORS.blue,
         drawerActiveTintColor: COLORS.white,
         drawerLabelStyle: {
-          marginLeft: -20,
+          marginLeft: -sizeWidth(5),
         },
       }}>
       <Drawer.Screen
@@ -42,11 +43,11 @@ function DrawerNavigator() {
             backgroundColor: COLORS.blue,
           },
 
-          drawerIcon: ({focused, color, size}) => (
+          drawerIcon: ({ focused, color, size }) => (
             <Icon name="home" size={18} color={color} />
           ),
           headerRight: () => (
-            <View style={{margin: 20}}>
+            <View style={{ margin: sizeWidth(5) }}>
               <FontAwesome5
                 name="search"
                 backgroundColor={COLORS.black}
@@ -63,13 +64,14 @@ function DrawerNavigator() {
         name={ROUTES.EMPLOYEEFORM_DRAWER}
         component={EmployeeForm}
         options={{
+          unmountOnBlur: true,
           //headerShown: true,
           title: 'Create Employee',
           headerTintColor: COLORS.white,
           headerStyle: {
             backgroundColor: COLORS.blue,
           },
-          drawerIcon: ({focused, color, size}) => (
+          drawerIcon: ({ focused, color, size }) => (
             <AntDesign name="form" size={18} color={color} />
           ),
           headerRight: () => <Button color="#841584" title="Save" />,
@@ -86,7 +88,7 @@ function DrawerNavigator() {
           },
 
           headerRight: () => (
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               <MaterialCommunityIcons.Button
                 name="pencil"
                 size={25}

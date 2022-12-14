@@ -11,7 +11,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants';
 
-function TitleHeader(props) {
+function TitleHeader({onclick,handleEdit, ...props}) {
   return (
     <View style={[styles.container, props.style]}>
       <StatusBar
@@ -41,13 +41,13 @@ function TitleHeader(props) {
                 name="pencil"
                 style={styles.pencil}
                 color={COLORS.white}
-                onPress={() => Alert.alert('Edit')}
+                onPress={handleEdit}
               />
               <FontAwesome5
                 name="trash"
                 style={styles.trash}
                 color={COLORS.white}
-                onPress={() => Alert.alert('trash')}
+                onPress={onclick}
               />
             </View>
           </View>

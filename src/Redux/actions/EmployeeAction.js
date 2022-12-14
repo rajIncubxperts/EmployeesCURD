@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {BASE_URL} from '../../Config/config';
-import {GET_EMPLOYEE_DATA,EDIT_EMPLOYEE_DATA, LOADING} from './../Types/types';
+import { BASE_URL } from '../../Config/config';
+import { GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA, LOADING } from './../Types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getEmployeeAction = () => {
@@ -55,6 +55,7 @@ export const deleteEmployeeAction = id => {
 
 export const createEmployeeAction = (tempData, props) => {
   return async dispatch => {
+    await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     axios
@@ -70,10 +71,65 @@ export const createEmployeeAction = (tempData, props) => {
         props.navigation.goBack()
       })
       .catch(e => {
+        dispatch(loadingState(false));
         console.log(`Get Employee error ${e}`);
       });
   };
 }
+
+export const editEmployeeAction = id => {
+  return async dispatch => {
+    await dispatch(loadingState(true))
+    const getParseData = await AsyncStorage.getItem('userInfo');
+    const convertPaeseData = JSON.parse(getParseData);
+    axios
+      .get(`${BASE_URL}/Employee/${id}`, {
+        headers: {
+          Authorization:
+            convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
+        },
+      })
+      .then(async res => {
+        let resData = res.data;
+        console.log('Edit Employee Data ', resData);
+        // You can invoke sync or async actions with `dispatch`
+        await dispatch(editEmployeeResponseData(resData.result));
+        await dispatch(loadingState(false))
+        global.actionType = ""
+      })
+      .catch(e => {
+        dispatch(loadingState(false))
+        console.log(`Get Employee error ${e}`);
+      });
+  };
+};
+
+export const updateEmployeeAction = (tempData, props) => {
+  return async dispatch => {
+    await dispatch(loadingState(true))
+    const getParseData = await AsyncStorage.getItem('userInfo');
+    const convertPaeseData = JSON.parse(getParseData);
+    axios
+      .put(`${BASE_URL}/Employee`, tempData, {
+        headers: {
+          Authorization:
+            convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
+        },
+      })
+      .then(async res => {
+        let resData = res.data;
+        console.log('Edit Employee Data ', resData);
+        await editEmployeeResponseData(null);
+        await dispatch(loadingState(false))
+        props.navigation.goBack()
+      })
+      .catch(async e => {
+        await dispatch(loadingState(false))
+        console.log(`Get Employee error ${e}`);
+      });
+  };
+};
+
 
 export const getEmployeeResponseData = data => {
   return {
@@ -82,9 +138,16 @@ export const getEmployeeResponseData = data => {
   };
 };
 
-const loadingState = data => {
-    return {
-      type: LOADING,
-      payload: data,
-    };
+export const loadingState = data => {
+  return {
+    type: LOADING,
+    payload: data,
   };
+};
+
+export const editEmployeeResponseData = data => {
+  return {
+    type: EDIT_EMPLOYEE_DATA,
+    payload: data,
+  };
+};

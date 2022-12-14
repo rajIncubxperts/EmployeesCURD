@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import {
   ImageBackground,
   StyleSheet,
@@ -15,20 +15,21 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {COLORS, IMGS, ROUTES} from '../constants';
-import {useNavigation} from '@react-navigation/native';
-import {AuthContext} from '../Context/AuthContext';
+import { COLORS, IMGS, ROUTES } from '../constants';
+import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../Context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useSelector, useDispatch} from 'react-redux';
-import {authResponseData} from './../Redux/actions/AuthAction';
-import {useState} from 'react';
-import {useCallback} from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { authResponseData } from './../Redux/actions/AuthAction';
+import { useState } from 'react';
+import { useCallback } from 'react';
 import SimpleModal from './SimpleModal';
-const {width} = Dimensions.get('screen');
+import { sizeFont, sizeWidth } from '../Utils/Size';
+const { width } = Dimensions.get('screen');
 
 const CustomDrawer = props => {
   const navigation = useNavigation();
-  const {isLoading, logout} = useContext(AuthContext);
+  const { isLoading, logout } = useContext(AuthContext);
   const [isModalVisible, setisModalVisible] = useState(false);
   const dispatch = useDispatch();
   const [, updateState] = useState();
@@ -70,27 +71,27 @@ const CustomDrawer = props => {
     <>
       <DrawerContentScrollView {...props}>
         {/* <ImageBackground source={IMGS.bgPattern} style={{height: 140}}> */}
-        <View style={{justifyContent: 'space-between'}}>
+        <View style={{ justifyContent: 'space-between' }}>
           <Image source={IMGS.user} style={styles.userImg} />
           <View
             style={{
-              marginLeft: 80,
+              marginLeft: sizeWidth(20),
               alignContent: 'space-between',
               alignItems: 'flex-start',
             }}>
-            <Text style={{color: 'black', fontWeight: '400', fontSize: 17}}>
+            <Text style={{ color: 'black', fontWeight: '400', fontSize: sizeFont(4) }}>
               IX-Dev
             </Text>
-            <Text style={{color: 'black', fontWeight: '400'}}>
+            <Text style={{ color: 'black', fontWeight: '400' }}>
               incubxpertsdev@gmail.com
             </Text>
           </View>
-          <View style={{marginHorizontal: 16}}>
+          <View style={{ marginHorizontal: sizeWidth(5) }}>
             <View
               style={{
                 borderBottomColor: 'grey',
                 borderBottomWidth: StyleSheet.hairlineWidth,
-                marginTop: 30,
+                marginTop: sizeWidth(7),
               }}
             />
           </View>
@@ -106,7 +107,7 @@ const CustomDrawer = props => {
           <DrawerItemList {...props} />
         </View>
       </DrawerContentScrollView>
-      <View style={{padding: 20, borderTopWidth: 1, borderTopColor: '#ccc'}}>
+      <View style={{ padding: sizeWidth(5), borderTopWidth: 1, borderTopColor: '#ccc' }}>
         <Modal
           transparent={true}
           animationType="fade"
@@ -121,14 +122,14 @@ const CustomDrawer = props => {
         </Modal>
         <TouchableOpacity
           onPress={() => changeModalVisible(true)}
-          style={{paddingVertical: 15}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          style={{ paddingVertical: sizeWidth(4) }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="exit-outline" size={22} />
             <Text
               style={{
-                fontSize: 15,
+                fontSize: sizeFont(4),
                 fontFamily: 'Roboto-Medium',
-                marginLeft: 5,
+                marginLeft: sizeWidth(2),
               }}>
               Sign Out
             </Text>
@@ -143,11 +144,11 @@ export default CustomDrawer;
 
 const styles = StyleSheet.create({
   userImg: {
-    width: 50,
-    height: 50,
-    borderRadius: 110 / 2,
-    left: width / 3 - 110,
-    bottom: -120 / 3,
+    width: sizeWidth(12),
+    height: sizeWidth(12),
+    borderRadius: sizeWidth(12),
+    left: sizeWidth(5),
+    bottom: -sizeWidth(10),
     borderWidth: 4,
     borderColor: COLORS.white,
   },
