@@ -110,7 +110,7 @@ export const registerAction = (username, email, password, confirmpassword) => {
     if (isError) {
       dispatch(errorHandler(error));
     } else {
-      await dispatch(loadingState(true));
+      await dispatch(loadingState(true)); 
       axios
         .post(`${BASE_URL}/Register`, {
           username,
@@ -118,9 +118,10 @@ export const registerAction = (username, email, password, confirmpassword) => {
           password,
         })
         .then(async res => {
+          console.log("resp",res)
           let userInfo = res.data;
-          AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-          await dispatch(authResponseData(userInfo));
+          AsyncStorage.setItem('userInfo', '');
+          await dispatch(authResponseData(""));
           await dispatch(loadingState(false));
           console.log(userInfo);
         })

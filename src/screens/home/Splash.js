@@ -4,8 +4,6 @@ import {View, StyleSheet, Text, Image} from 'react-native';
 
 
 export default function Splash({navigation}) {
-
-
   useEffect(() => {
     setTimeout(() => {
       navigation.replace('Login');
@@ -16,7 +14,7 @@ export default function Splash({navigation}) {
     <View style={styles.body}>
       <Image
         style={styles.logo}
-        source={require('../../assets/f8dc8046aa60d65fbe068ac408c04ebf.jpg')}
+        source={require('../../assets/maxresdefault.jpeg')}
       />
     </View>
   );

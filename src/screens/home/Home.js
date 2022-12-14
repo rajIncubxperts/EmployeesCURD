@@ -8,40 +8,42 @@ import {
   Modal,
   FlatList,
 } from 'react-native';
-import React, {useState, useCallback} from 'react';
-import {COLORS, ROUTES} from '../../constants';
+import React, { useState, useCallback } from 'react';
+import { COLORS, ROUTES } from '../../constants';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Card, Title, Paragraph} from 'react-native-paper';
+import { Card, Title, Paragraph } from 'react-native-paper';
 import PropupModel from '../../components/PropupModel';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {
   getEmployeeAction,
   deleteEmployeeAction,
   editEmployeeResponseData,
+  getWorkEmployeeResponseData,
 } from '../../Redux/actions/EmployeeAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {authResponseData} from '../../Redux/actions/AuthAction';
-import {useFocusEffect} from '@react-navigation/native';
-import {useSelector, useDispatch} from 'react-redux';
-import {sizeFont, sizeWidth} from './../../Utils/Size';
+import { authResponseData } from '../../Redux/actions/AuthAction';
+import { useFocusEffect } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+import { sizeFont, sizeWidth } from './../../Utils/Size';
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
   const [showBox, setShowBox] = useState(true);
   const [isModalVisible, setisModalVisible] = useState(false);
   const [listItem, setListItem] = useState(null);
   const [chooseData, setchooseData] = useState();
 
-  const {employeeData, isLoading} = useSelector(state => state.EmployeeReducer);
+  const { employeeData, isLoading } = useSelector(state => state.EmployeeReducer);
   const dispatch = useDispatch();
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(editEmployeeResponseData(null));
-      dispatch(getEmployeeAction());
       (async () => {
+        await dispatch(getWorkEmployeeResponseData(null));
+        await dispatch(editEmployeeResponseData(null));
+        await dispatch(getEmployeeAction());
         const getParseData = await AsyncStorage.getItem('userInfo');
         const convertPaeseData = JSON.parse(getParseData);
         await dispatch(authResponseData(convertPaeseData));
@@ -87,7 +89,7 @@ const Home = ({navigation}) => {
     );
   };
 
-  const renderEmployeeList = ({item, index}) => {
+  const renderEmployeeList = ({ item, index }) => {
     return (
       <>
         <TouchableNativeFeedback
@@ -95,7 +97,7 @@ const Home = ({navigation}) => {
             global.actionType = 'edit';
             global.tempActionType = 'edit';
             global.empId = item?.id;
-            navigation.navigate('EmployeeDetails Tab', {item});
+            navigation.navigate('EmployeeDetails Tab', { item });
           }}>
           <View>
             <Card>
@@ -119,7 +121,7 @@ const Home = ({navigation}) => {
                     name={'pencil'}
                     size={25}
                     color={COLORS.black}
-                    style={{alignSelf: 'center'}}
+                    style={{ alignSelf: 'center' }}
                   />
                 </TouchableOpacity>
 
@@ -134,24 +136,24 @@ const Home = ({navigation}) => {
                     name={'trash'}
                     size={20}
                     color={COLORS.black}
-                    style={{alignSelf: 'center'}}
+                    style={{ alignSelf: 'center' }}
                   />
                 </TouchableOpacity>
 
                 <Title>{`${item?.firstName} ${item?.lastName}`}</Title>
-                <View style={{flexDirection: 'row', paddingLeft: sizeWidth(1)}}>
+                <View style={{ flexDirection: 'row', paddingLeft: sizeWidth(1) }}>
                   <MaterialIcons name="location-city" size={22} color="black" />
                   <Paragraph
-                    style={{paddingLeft: 5}}>{`${item?.location}`}</Paragraph>
+                    style={{ paddingLeft: 5 }}>{`${item?.location}`}</Paragraph>
                 </View>
 
-                <View style={{flexDirection: 'row', paddingLeft: sizeWidth(1)}}>
+                <View style={{ flexDirection: 'row', paddingLeft: sizeWidth(1) }}>
                   <FontAwesome name="building-o" size={22} color="black" />
-                  <Paragraph style={{paddingLeft: 10}}>
+                  <Paragraph style={{ paddingLeft: 10 }}>
                     {`${item?.department}`}
                   </Paragraph>
                 </View>
-                <View style={{flexDirection: 'row', paddingLeft: sizeWidth(1)}}>
+                <View style={{ flexDirection: 'row', paddingLeft: sizeWidth(1) }}>
                   <MaterialIcons name="call" size={22} color="black" />
                   <Paragraph
                     style={{
@@ -196,7 +198,7 @@ const Home = ({navigation}) => {
       </Modal>
       {employeeData && employeeData?.length == 0 ? (
         <View
-          style={{alignItems: 'center', justifyContent: 'flex-end', flex: 1}}>
+          style={{ alignItems: 'center', justifyContent: 'flex-end', flex: 1 }}>
           <Text
             style={{
               textAlign: 'center',
@@ -225,7 +227,7 @@ const Home = ({navigation}) => {
             name={'plus'}
             size={20}
             color={'#ffffff'}
-            style={{alignSelf: 'center'}}
+            style={{ alignSelf: 'center' }}
           />
         </TouchableOpacity>
       </View>

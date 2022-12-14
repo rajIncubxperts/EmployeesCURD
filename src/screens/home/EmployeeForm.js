@@ -27,7 +27,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { editEmployeeAction, editEmployeeResponseData, updateEmployeeAction } from './../../Redux/actions/EmployeeAction';
 import { sizeFont, sizeWidth } from './../../Utils/Size';
 import axios from 'axios';
-import { GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA, LOADING } from '../../Redux/Types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '../../Config/config';
 
@@ -59,7 +58,7 @@ const EmployeeForm = props => {
   const [defaultCitySelected, setDefaultCitySelected] = React.useState({});
   const { editEmployeeData, isLoading } = useSelector(state => state.EmployeeReducer);
   const { errorForm } = useSelector(state => state.AuthReducer);
-  // const {} = useSelector(state => console.log("State: ",state))
+
   const dispatch = useDispatch();
 
   const data = [
@@ -167,11 +166,11 @@ const EmployeeForm = props => {
     // console.log('Click happened');
     var isError = false;
     var error = {};
-    if (firstName == '') {
+    if (firstName.trim() =='') {
       error.firstName = "Field can't be empty.";
       isError = true;
     }
-    if (lastName == '') {
+    if (lastName.trim() == '') {
       error.lastName = "Field can't be empty.";
       isError = true;
     }
@@ -234,21 +233,17 @@ const EmployeeForm = props => {
   };
 
   const cameraHandelr = async () => {
-    debugger;
-    dispatch(loadingState(true))
     let options = {
       mediaType: 'photo',
       includeBase64: true,
     };
     const result = await launchCamera(options);
-    console.log("Image Result",result)
+    let uri = result.assets[0].uri;
     try {
       let base64 = result.assets[0].base64;
       let type = result.assets[0].type;
       let tempObj = `data:${type};base64,${base64}`;
-      console.log("Image",tempObj)
-      setEmpImage(tempObj);
-      dispatch(loadingState(false))
+      apiCallForUploadImage(uri, type, tempObj);
 
     } catch (error) {
       console.log(error.message)
@@ -257,22 +252,21 @@ const EmployeeForm = props => {
   };
 
   const galleryHandler = async () => {
-    dispatch(loadingState(true))
+
     let options = {
       mediaType: 'photo',
       includeBase64: true,
     };
     const result = await launchImageLibrary(options);
     let uri = result.assets[0].uri;
-    console.log("Image Result gallety", uri);
-    
+
     try {
       let base64 = result.assets[0].base64;
       let type = result.assets[0].type;
       let tempObj = `data:${type};base64,${base64}`;
-      apiCallForUploadImage(uri);
-      setEmpImage(tempObj);
-      dispatch(loadingState(false))
+      apiCallForUploadImage(uri, type, tempObj);
+
+
 
     } catch (error) {
       console.log(error.message)
@@ -280,27 +274,43 @@ const EmployeeForm = props => {
     }
   };
 
-  const apiCallForUploadImage=(uri)=>{
+  const apiCallForUploadImage = async (uri, type, tempObj) => {
+    dispatch(loadingState(true))
+
+   
     let formData = new FormData();
-    formData.append('files',uri)
+
+    let data = {
+      uri: uri,
+      type: type,
+      name: `test`,
+    };
+    formData.append('files', data);
 
 
-    // axios
-    // .post(`${BASE_URL}/UploadProfile?employeeId=${}`, tempData, {
-    //   headers: {
-    //     Authorization:
-    //       convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
-    //   },
-    // })
-    // .then(async res => {
-    //   let resData = res.data;
-    //   console.log('Edit Employee Data ', resData);
-    //   props.navigation.goBack()
-    // })
-    // .catch(e => {
-    //   dispatch(loadingState(false));
-    //   console.log(`Get Employee error ${e}`);
-    // });
+    const getParseData = await AsyncStorage.getItem('userInfo');
+    console.log("userInfo",getParseData)
+    const convertPaeseData = JSON.parse(getParseData);
+    axios
+      .post(`${BASE_URL}/UploadProfile?employeeId=${editEmployeeData.id}`, formData, {
+        headers: {
+          Authorization:
+            convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
+          'Content-Type': 'multipart/form-data'
+        },
+      })
+      .then(async res => {
+        if (res.status == 200) {
+          setEmpImage(tempObj);
+        }
+
+        dispatch(loadingState(false))
+
+      })
+      .catch(e => {
+        dispatch(loadingState(false));
+        console.log(`Get Employee error ${e}`);
+      });
 
   }
 
@@ -326,9 +336,15 @@ const EmployeeForm = props => {
       "joiningDate": joinDate,
       "salaryRevisionDate": srdonDate,
     };
-    console.log('Joining Date :-', joinDate);
-    console.log(tempObj);
-    await dispatch(createEmployeeAction(tempObj, props));
+
+  // var testId =    await dispatch(editEmployeeAction(global.empId));
+  //   console.log("TestID", testId);
+  //   console.log('Joining Date :-', joinDate);
+  // //  var test = await dispatch(createEmployeeAction(res.data))
+  //   console.log("Save Data",tempObj);
+  //   var Id = tempObj;
+    var data = await dispatch(createEmployeeAction(tempObj, props));
+    console.log("ID >>>>>>>>",test);  
   };
 
   const updateHandler = async () => {
@@ -375,10 +391,8 @@ const EmployeeForm = props => {
       "joiningDate": joinDate,
       "salaryRevisionDate": srdonDate
     }
-
     console.log("Update Employee", tempObj)
     dispatch(updateEmployeeAction(tempObj, props))
-
   }
 
   return (
@@ -420,15 +434,16 @@ const EmployeeForm = props => {
                     firstName: '',
                   }),
                 );
-                setFirstName(text);
+                setFirstName(text.trim());
+                
               }}
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
             />
           </View>
-          {errorForm.firstName == null ? null : (
-            <Text style={{ color: 'red' }}>{errorForm.firstName}</Text>
-          )}
+           {errorForm.firstName ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+          
+          {/* {firstName ==  "" || null ?  <Text style={{ color: 'red' }}>{errorForm.firstName}</Text> : null } */}
           <View
             style={[
               { borderColor: errorForm.lastName ? 'red' : null, borderWidth: 1 },
@@ -444,15 +459,13 @@ const EmployeeForm = props => {
                     lastName: '',
                   }),
                 );
-                setLastName(text);
+                setLastName(text.trim());
               }}
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
-            />
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
+            /> 
           </View>
-          {errorForm.lastName == null ? null : (
-            <Text style={{ color: 'red' }}>{errorForm.lastName}</Text>
-          )}
+          {errorForm.lastName ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
           <View style={{ margin: sizeWidth(1) }} />
           <View style={{ backgroundColor: COLORS.blue, padding: sizeWidth(2) }}>
             <Text
@@ -469,9 +482,9 @@ const EmployeeForm = props => {
             defaultOption={defaultDeptSelected}
             save="value"
             placeholder="Select Department"
-            inputStyles={{color:'black'}}
-            dropdownTextStyles={{color:'gery'}}
-            dropdownStyles={{backgroundColor:'grey'}} 
+            inputStyles={{ color: 'black' }}
+            dropdownTextStyles={{ color: 'gery' }}
+            dropdownStyles={{ backgroundColor: 'grey' }}
           />
           <View style={{ margin: sizeWidth(1) }} />
           <SelectList
@@ -483,9 +496,9 @@ const EmployeeForm = props => {
             defaultOption={defaultCitySelected}
             save="value"
             placeholder="Select City"
-            inputStyles={{color:'black'}}
-            dropdownTextStyles={{color:'gery'}}
-            dropdownStyles={{backgroundColor:'grey'}} 
+            inputStyles={{ color: 'black' }}
+            dropdownTextStyles={{ color: 'gery' }}
+            dropdownStyles={{ backgroundColor: 'grey' }}
           />
           <View
             style={[
@@ -503,19 +516,17 @@ const EmployeeForm = props => {
                     phone: '',
                   }),
                 );
-                setPhone(text);
+                setPhone(text.trim());
               }}
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
             />
           </View>
-          {errorForm.phone == null ? null : (
-            <Text style={{ color: 'red' }}>{errorForm.phone}</Text>
-          )}
+          {errorForm.phone ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
           <View style={{ margin: sizeWidth(1) }} />
           <View
             style={[
-              {borderColor: errorForm.joinDate ? 'red' : null, borderWidth: 1},
+              { borderColor: errorForm.joinDate ? 'red' : null, borderWidth: 1 },
               styles.mainBox,
             ]}
             onTouchEndCapture={() => {
@@ -523,8 +534,8 @@ const EmployeeForm = props => {
             }}>
             <TextInput
               placeholder="Salary Revision Due On"
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
               value={joinDate}
               onChangeText={text => {
                 dispatch(
@@ -535,20 +546,20 @@ const EmployeeForm = props => {
                 );
                 setJoinDate(text);
               }}
-              //showSoftInputOnFocus={false}
-              // keyboardType="numeric"
-              //editable={false}
+            //showSoftInputOnFocus={false}
+            // keyboardType="numeric"
+            //editable={false}
             />
           </View>
           {errorForm.joinDate == null ? null : (
-            <Text style={{color: 'red'}}>{errorForm.joinDate}</Text>
+            <Text style={{ color: 'red' }}>{errorForm.joinDate}</Text>
           )}
 
 
           <View style={{ margin: sizeWidth(1) }} />
           <View
             style={[
-              {borderColor: errorForm.srdonDate ? 'red' : null, borderWidth: 1},
+              { borderColor: errorForm.srdonDate ? 'red' : null, borderWidth: 1 },
               styles.mainBox,
             ]}
             onTouchEndCapture={() => {
@@ -556,8 +567,8 @@ const EmployeeForm = props => {
             }}>
             <TextInput
               placeholder="Date of Joining"
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
               value={srdonDate}
               onChangeText={text => {
                 dispatch(
@@ -568,11 +579,11 @@ const EmployeeForm = props => {
                 );
                 setSrdonDate(text);
               }}
-              // editable={false}
+            // editable={false}
             />
           </View>
           {errorForm.srdonDate == null ? null : (
-            <Text style={{color: 'red'}}>{errorForm.srdonDate}</Text>
+            <Text style={{ color: 'red' }}>{errorForm.srdonDate}</Text>
           )}
           <View style={{ margin: sizeWidth(1) }} />
           <View style={{ backgroundColor: COLORS.blue, padding: sizeWidth(2) }}>
@@ -599,15 +610,13 @@ const EmployeeForm = props => {
                     mobile: '',
                   }),
                 );
-                setMobile(text);
+                setMobile(text.trim());
               }}
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
             />
           </View>
-          {errorForm.mobile == null ? null : (
-            <Text style={{ color: 'red' }}>{errorForm.mobile}</Text>
-          )}
+          {errorForm.mobile ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
           <View style={{ margin: sizeWidth(1) }} />
           <SelectList
             setSelected={val => setSelectBlood(val)}
@@ -615,9 +624,9 @@ const EmployeeForm = props => {
             defaultOption={defaultBloodSelected}
             save="value"
             placeholder="Select Blood Group"
-            inputStyles={{color:'black'}}
-            dropdownTextStyles={{color:'gery'}}
-            dropdownStyles={{backgroundColor:'grey'}} 
+            inputStyles={{ color: 'black' }}
+            dropdownTextStyles={{ color: 'gery' }}
+            dropdownStyles={{ backgroundColor: 'grey' }}
           />
           <View style={{ margin: sizeWidth(1) }} />
           <View style={{ backgroundColor: COLORS.blue, padding: sizeWidth(2) }}>
@@ -643,15 +652,13 @@ const EmployeeForm = props => {
                     jobDesc: '',
                   }),
                 );
-                setJobDesc(text);
+                setJobDesc(text.trim());
               }}
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
             />
           </View>
-          {errorForm.jobDesc == null ? null : (
-            <Text style={{ color: 'red' }}>{errorForm.jobDesc}</Text>
-          )}
+          {errorForm.jobDesc ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
           <View
             style={[
               { borderColor: errorForm.expertise ? 'red' : null, borderWidth: 1 },
@@ -668,15 +675,13 @@ const EmployeeForm = props => {
                     expertise: '',
                   }),
                 );
-                setExpertise(text);
+                setExpertise(text.trim());
               }}
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
             />
           </View>
-          {errorForm.expertise == null ? null : (
-            <Text style={{ color: 'red' }}>{errorForm.expertise}</Text>
-          )}
+          {errorForm.expertise ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
           <View
             style={[
               { borderColor: errorForm.aboutMe ? 'red' : null, borderWidth: 1 },
@@ -694,15 +699,13 @@ const EmployeeForm = props => {
                     aboutMe: '',
                   }),
                 );
-                setAboutMe(text);
+                setAboutMe(text.trim());
               }}
-              placeholderTextColor= 'grey' 
-              style={{color:'black'}}
+              placeholderTextColor='grey'
+              style={{ color: 'black' }}
             />
           </View>
-          {errorForm.aboutMe == null ? null : (
-            <Text style={{ color: 'red' }}>{errorForm.aboutMe}</Text>
-          )}
+          {errorForm.aboutMe ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
         </View>
       </ScrollView>
       {showJoinDatePicker ? (
