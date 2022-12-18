@@ -7,6 +7,7 @@ import {
   Alert,
   Modal,
   FlatList,
+  RefreshControl
 } from 'react-native';
 import React, { useState, useCallback } from 'react';
 import { COLORS, ROUTES } from '../../constants';
@@ -21,7 +22,6 @@ import {
   getEmployeeAction,
   deleteEmployeeAction,
   editEmployeeResponseData,
-  getWorkEmployeeResponseData,
 } from '../../Redux/actions/EmployeeAction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authResponseData } from '../../Redux/actions/AuthAction';
@@ -29,21 +29,24 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { sizeFont, sizeWidth } from './../../Utils/Size';
 
+
+
+
 const Home = ({ navigation }) => {
   const [showBox, setShowBox] = useState(true);
   const [isModalVisible, setisModalVisible] = useState(false);
   const [listItem, setListItem] = useState(null);
   const [chooseData, setchooseData] = useState();
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const { employeeData, isLoading } = useSelector(state => state.EmployeeReducer);
   const dispatch = useDispatch();
 
   useFocusEffect(
     useCallback(() => {
+      dispatch(editEmployeeResponseData(null));
+      dispatch(getEmployeeAction());
       (async () => {
-        await dispatch(getWorkEmployeeResponseData(null));
-        await dispatch(editEmployeeResponseData(null));
-        await dispatch(getEmployeeAction());
         const getParseData = await AsyncStorage.getItem('userInfo');
         const convertPaeseData = JSON.parse(getParseData);
         await dispatch(authResponseData(convertPaeseData));
@@ -89,7 +92,25 @@ const Home = ({ navigation }) => {
     );
   };
 
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(false);
+    if (employeeData.length < 100) {
+      try {
+        dispatch(getEmployeeAction());
+        setRefreshing(false)
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    else{
+      //ToastAndroid.show('No more new data available', ToastAndroid.SHORT);
+      Alert.alert('No more new data available')
+      setRefreshing(false)
+    }
+  }, [refreshing]);
+
   const renderEmployeeList = ({ item, index }) => {
+    console.log("Get Data", item);
     return (
       <>
         <TouchableNativeFeedback
@@ -212,8 +233,13 @@ const Home = ({ navigation }) => {
         <FlatList
           data={employeeData}
           renderItem={renderEmployeeList}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) => index.toString()}            
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          
         />
+          
       )}
       <View style={styles.body}>
         <TouchableOpacity
@@ -221,7 +247,7 @@ const Home = ({ navigation }) => {
           onPress={() => {
             global.tempActionType = '';
             global.empId = '';
-            navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER);
+            navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER, { forNewRegistration: true });
           }}>
           <FontAwesome5
             name={'plus'}

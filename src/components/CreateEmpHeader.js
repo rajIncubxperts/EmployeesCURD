@@ -12,7 +12,7 @@ import {
 import { COLORS } from '../constants';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import { sizeFont, sizeWidth } from './../Utils/Size';
+import { sizeHeight, sizeWidth } from './../Utils/Size';
 
 function CreateEmpHeader({ onclick, ...props }) {
   const navigation = useNavigation();
@@ -51,17 +51,17 @@ function CreateEmpHeader({ onclick, ...props }) {
 const styles = StyleSheet.create({
   container: {},
   header: {
-    height: sizeWidth(27),
+    height: sizeHeight(15),
   },
   headerBack: {
     width: '100%',
-    height: '75%',
+    height: sizeHeight(11.5),
     flexDirection: 'column',
     justifyContent: 'flex-start',
     backgroundColor: COLORS.blue,
   },
   headerControlBar: {
-    marginTop: sizeWidth(15),
+    marginTop: 60,
     width: '85%',
     alignSelf: 'center',
     flexDirection: 'row',
@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
   headerBack_imageStyle: {},
   headerImage: {
     flexDirection: 'column',
-    width: sizeWidth(30),
-    height: sizeWidth(30),
+    width: 150,
+    height: 150,
     alignSelf: 'center',
     justifyContent: 'center',
   },
@@ -84,27 +84,27 @@ const styles = StyleSheet.create({
   },
   headerBackArrow: {
     alignSelf: 'flex-start',
-    top: -20,
+    top: sizeHeight(-1.5),
     left: -15,
-    width: 30,
-    height: 30,
+    width: sizeWidth(8),
+    height: sizeHeight(30),
   },
 
   title: {
     color: '#FFFFFF',
-    fontSize: sizeFont(4.5),
-    top: -sizeFont(5),
+    fontSize: 18,
+    top: sizeHeight(-1.5),
     width: '75%',
   },
   pencil: {
     color: '#FFFFFF',
     fontSize: 20,
-    top: -22,
+    top: sizeHeight(-1.5),
   },
   trash: {
     color: '#FFFFFF',
     fontSize: 20,
-    top: -20,
+    top: sizeHeight(-1.5),
     paddingLeft: 25,
   },
   profileDetails: {

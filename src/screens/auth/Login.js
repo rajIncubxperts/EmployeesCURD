@@ -1,4 +1,4 @@
-import React, { useContext, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -53,11 +53,11 @@ const Login = props => {
     >
       <View style={styles.alertLightView} >
         <View style={styles.alertBoxView} >
-          <Text style={{ textAlign: "center", fontWeight: "bold", fontSize: sizeFont(5), }} >{"Error"}</Text>
-          <Text style={{ marginVertical: 10, textAlign: "center", fontWeight: "500", fontSize: sizeFont(4), }} >{showAlertMessage}</Text>
+          <Text style={{ textAlign: "center", fontWeight: "bold", fontSize: sizeFont(5), color:COLORS.black}} >{"Error"}</Text>
+          <Text style={{ marginVertical: 10, textAlign: "center", fontWeight: "500", fontSize: sizeFont(4), color:COLORS.black }} >{showAlertMessage}</Text>
           <Text onPress={() => {
-            dispatch(showAlertState({ show: false, message: "" }))
-          }} style={{ marginEnd: 5, textAlign: "right", fontWeight: "bold", fontSize: sizeFont(5), }} >{"Ok"}</Text>
+            dispatch(showAlertState({ show: false, message: '' }))
+          }} style={{ marginEnd: 5, textAlign: "right", fontWeight: "bold", fontSize: sizeFont(5), color:COLORS.black }} >{"Ok"}</Text>
         </View>
       </View>
     </Modal>
@@ -73,7 +73,6 @@ const Login = props => {
         <Spinner visible={isLoading} />
         <View style={styles.wFull}>
           <Text style={styles.loginContinueTxt}>Sign in to continue!</Text>
-
           <View
             style={[
               { borderColor: error.username ? 'red' : null, borderWidth: 1 },
@@ -94,15 +93,15 @@ const Login = props => {
                     'login',
                   ),
                 );
-                setUserName(text);
+                setUserName(text.trim());
               }}
                placeholderTextColor= 'grey' 
             />
           </View>
-          {error.username == null ? null : (
+          {/* {error.username == null ? null : (
             <Text style={{ color: 'red' }}>{error.username}</Text>
-          )}
-
+          )} */}
+            {error.username ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
           <View
             style={[
               { borderColor: error.password ? 'red' : null, borderWidth: 2 },
@@ -140,7 +139,7 @@ const Login = props => {
           {error.password == null ? null : (
             <Text style={{ color: 'red' }}>{error.password}</Text>
           )}
-
+           {/* {error.password ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null }  */}
           <View style={styles.loginBtnWrapper}>
             {/******************** LOGIN BUTTON *********************/}
             <TouchableOpacity

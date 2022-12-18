@@ -51,7 +51,7 @@ const Register = props => {
       <View style={styles.container}>
         <View style={styles.wFull}>
           {/* <Text style={styles.loginContinueTxt}>Register in to continue</Text> */}
-
+    
           <View
             style={[
               {borderColor: errorReg.username ? 'red' : null, borderWidth: 1},
@@ -70,15 +70,15 @@ const Register = props => {
                     username: '',
                   }),
                 );
-                setUserName(text);
+                setUserName(text.trim());
               }}
               placeholderTextColor= 'grey' 
             />
           </View>
-          {errorReg.username == null ? null : (
+          {/* {errorReg.username == null ? null : (
             <Text style={{color: 'red'}}>{errorReg.username}</Text>
-          )}
-
+          )} */}
+            {errorReg.username ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
           <View
             style={[
               {borderColor: errorReg.email ? 'red' : null, borderWidth: 2},
@@ -101,7 +101,7 @@ const Register = props => {
                   }),
                 );
 
-                setEmail(text);
+                setEmail(text.trim());
               }}
               placeholderTextColor= 'grey' 
             />

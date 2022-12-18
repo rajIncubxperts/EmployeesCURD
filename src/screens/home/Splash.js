@@ -4,10 +4,12 @@ import {View, StyleSheet, Text, Image} from 'react-native';
 
 
 export default function Splash({navigation}) {
+
+
   useEffect(() => {
     setTimeout(() => {
       navigation.replace('Login');
-    }, 1000);
+    }, 500);
   }, []);
 
   return (

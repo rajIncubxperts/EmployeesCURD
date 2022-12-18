@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button, HelperText } from 'react-native-paper';
+import React, {useState, useEffect, useCallback} from 'react';
+import {Button, HelperText} from 'react-native-paper';
 import {
   StyleSheet,
   Text,
@@ -11,16 +11,17 @@ import {
   TextInput,
   Dimensions,
   SafeAreaView,
+  FlatList,
   Image,
 } from 'react-native';
-import { COLORS, IMGS, ROUTES } from '../../constants';
+import {COLORS, IMGS, ROUTES} from '../../constants';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import TitleHeader from '../../components/TitleHeader';
-import { useFocusEffect } from '@react-navigation/native';
-import { useSelector, useDispatch } from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
+import {useSelector, useDispatch} from 'react-redux';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {
   editEmployeeAction,
@@ -29,15 +30,17 @@ import {
   updateWorkAction,
   addWorkAction,
 } from './../../Redux/actions/EmployeeAction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import ProfileImg from '../../components/ProfileImg';
-import { errorFormHandler } from '../../Redux/actions/AuthAction';
-import { useNavigation } from '@react-navigation/native';
-import { sizeFont, sizeWidth } from './../../Utils/Size';
+import {errorFormHandler} from '../../Redux/actions/AuthAction';
+import {useNavigation} from '@react-navigation/native';
+import {sizeFont, sizeWidth} from './../../Utils/Size';
 import PropupModel from '../../components/PropupModel';
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-const EmployeeDetails = ({ title, route, navigation }) => {
-  const { workDataGet, editEmployeeData, isLoading } = useSelector(
+const EmployeeDetails = ({title, route, navigation}) => {
+  const {workDataGet, editEmployeeData, isLoading} = useSelector(
     state => state.EmployeeReducer,
   );
   const dispatch = useDispatch();
@@ -68,15 +71,16 @@ const EmployeeDetails = ({ title, route, navigation }) => {
   const [listItem, setListItem] = useState(null);
   const [chooseData, setchooseData] = useState();
 
-  const [prevComp, setPrevComp] = useState("")
-  const [jobTit, setJobTit] = useState("")
-  const [workFromDt, setWorkFromDt] = useState("")
-  const [workToDt, setWorkTODt] = useState("")
+  const [prevComp, setPrevComp] = useState('');
+  const [jobTit, setJobTit] = useState('');
+  const [workFromDt, setWorkFromDt] = useState('');
+  const [workToDt, setWorkTODt] = useState('');
 
-  const [modalprevComp, setModalPrevComp] = useState("")
-  const [modalJobTit, setModalJobTit] = useState("")
-  const [modalworkFromDt, setModalWorkFromDt] = useState("")
-  const [modalworkToDt, setModalWorkToDt] = useState("")
+  const [modalprevComp, setModalPrevComp] = useState('');
+  const [modalJobTit, setModalJobTit] = useState('');
+  const [modalworkFromDt, setModalWorkFromDt] = useState('');
+  const [modalworkToDt, setModalWorkToDt] = useState('');
+  const [empGetData, setempGetData] = useState([]);
 
   // Create toggleModalVisibility function that will
   // Open and close modal upon button clicks.
@@ -90,7 +94,7 @@ const EmployeeDetails = ({ title, route, navigation }) => {
   };
   const setData = data => {
     setchooseData(data);
-  }
+  };
 
   const changeModalVisible = bool => {
     setisModalVisible(bool);
@@ -127,22 +131,23 @@ const EmployeeDetails = ({ title, route, navigation }) => {
   }, []);
 
   const okModalHandler = async () => {
-    const data = {
-      "id": 0,
-      "employeeId": global.empId,
-      "previousCompany": modalprevComp,
-      "jobTitle": modalJobTit,
-      "fromDate": modalworkFromDt,
-      "toDate": modalworkToDt,
-      "isActive": true
-    }
-    console.log("Test", data)
+    const [data] = {
+      id: 0,
+      employeeId: global.empId,
+      previousCompany: modalprevComp,
+      jobTitle: modalJobTit,
+      fromDate: moment(new Date(modalworkFromDt)).toISOString(),
+      toDate: moment(new Date(modalworkToDt)).toISOString(),
+      isActive: true,
+    };
+    console.log('Test', data);
+    console.log('workDataGet', [workDataGet]);
     if (workDataGet.length != 0) {
-      await dispatch(updateWorkAction(data))
+      await dispatch(updateWorkAction([data]));
     } else {
-      await dispatch(addWorkAction(data))
+      await dispatch(addWorkAction([data]));
     }
-  }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -151,13 +156,18 @@ const EmployeeDetails = ({ title, route, navigation }) => {
           await dispatch(editEmployeeAction(global.empId));
           setTimeout(() => {
             console.log(' GET EDIT  ', JSON.stringify(editEmployeeData));
-            console.log(' WORK DETAILS DATA  ', JSON.stringify(workDataGet));
+            console.log(
+              ' WORK DETAILS DATA>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<< ',
+              JSON.stringify(workDataGet),
+            );
             if (workDataGet != null) {
-              setModalVisible(false)
-              setPrevComp(workDataGet[0]?.previousCompany)
-              setJobTit(workDataGet[0]?.jobTitle)
-              setWorkFromDt(moment(workDataGet[0]?.fromDate).format("DD MMM YYYY"))
-              setWorkTODt(moment(workDataGet[0]?.toDate).format("DD MMM YYYY"))
+              setModalVisible(false);
+              setPrevComp(workDataGet[0]?.previousCompany);
+              setJobTit(workDataGet[0]?.jobTitle);
+              setWorkFromDt(
+                moment(workDataGet[0]?.fromDate).format('DD MMM YYYY'),
+              );
+              setWorkTODt(moment(workDataGet[0]?.toDate).format('DD MMM YYYY'));
             }
             if (editEmployeeData != null) {
               setFirstName(editEmployeeData?.firstName);
@@ -181,17 +191,50 @@ const EmployeeDetails = ({ title, route, navigation }) => {
               setSelectDept(editEmployeeData?.department);
               setSelectBlood(editEmployeeData?.bloodGroup);
             }
-          }, );
+          });
         }
       })();
     }, [editEmployeeData, workDataGet]),
   );
 
+  useEffect(() => {
+    getEmpDetails();
+  });
+
+  const getEmpDetails = async () => {
+    const getParseData = await AsyncStorage.getItem('userInfo');
+    const convertPaeseData = JSON.parse(getParseData);
+    axios
+      .get(
+        `https://tech-resources-core-api.azurewebsites.net/EmployeeWorkExperience/${global.empId}`,
+        {
+          headers: {
+            Authorization:
+              convertPaeseData == null
+                ? ''
+                : `Bearer ${convertPaeseData.result}`,
+          },
+        },
+      )
+      .then(async res => {
+        console.log('get res', res);
+        setempGetData(res.data.result);
+        // let resData = res.data;
+        // console.log('Get Work Details Data ', JSON.stringify(resData.result));
+        // // You can invoke sync or async actions with `dispatch`
+        // await dispatch(getWorkEmployeeResponseData(resData.result));
+        // await dispatch(loadingState(false))
+        // global.actionType = ""
+      })
+      .catch(e => {
+        console.log(`Get Employee error ${e}`);
+      });
+  };
   const handleClicks = item => {
     console.log('item here', item);
     setListItem(item);
     setisModalVisible(true);
-   // console.log('Cliked Delete');
+    // console.log('Cliked Delete');
   };
 
   const handleEdits = item => {
@@ -201,6 +244,88 @@ const EmployeeDetails = ({ title, route, navigation }) => {
       global.empId = item?.id;
       navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER);
     }
+  };
+
+  const renderItemEmpl = ({item}) => {
+    console.log('Itam here', item);
+    return (
+      // <View>
+      //   <Text style={{color: 'red'}}>{item.jobTitle}</Text>
+      // </View>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'space-around',
+          alignContent: 'center',
+        }}>
+        {workDataGet && workDataGet?.length === 0 ? (
+          <Text
+            style={{
+              alignSelf: 'flex-start',
+              margin: sizeWidth(2),
+              padding: sizeWidth(4),
+              color: COLORS.black,
+              fontWeight: 'bold',
+              marginLeft: sizeWidth(24),
+            }}>
+            No experience available!.
+          </Text>
+        ) : (
+          <>
+            <View style={styles.txtborder}>
+              <View style={{margin:7}}>
+              <Text style={styles.textcolor}>
+                <Text style={{fontWeight: 'bold'}}> Company name</Text>
+                {`- ${prevComp == undefined ? '' : prevComp}`}
+              </Text>
+              <Text style={styles.textcolor}>
+                <Text style={{fontWeight: 'bold'}}> Job Title</Text>
+                {`- ${jobTit == undefined ? '' : jobTit}`}
+              </Text>
+              <Text Text style={styles.textcolor}>
+                <Text style={{fontWeight: 'bold'}}> From Date</Text>
+                {`- ${workFromDt == undefined ? '' : workFromDt}`}
+              </Text>
+
+              <Text style={styles.textcolor}>
+                <Text style={{fontWeight: 'bold'}}> To Date</Text>
+                {`- ${workToDt == undefined ? '' : workToDt}`}
+              </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={() => {
+                setModalVisible(true);
+                setModalPrevComp(prevComp);
+                setModalJobTit(jobTit);
+                setModalWorkFromDt(workFromDt);
+                setModalWorkToDt(workToDt);
+                global.tempActionType = 'pencil';
+              }}>
+              <MaterialCommunityIcons
+                name={'pencil'}
+                size={25}
+                color={COLORS.black}
+                style={{alignSelf: 'center'}}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.trash}
+              onPress={() => showConfirmDialog()}>
+              <FontAwesome5
+                name={'trash'}
+                size={20}
+                color={COLORS.black}
+                style={{alignSelf: 'center'}}
+              />
+            </TouchableOpacity>
+          </>
+        )}
+        
+      </View>
+    );
   };
 
   return (
@@ -218,7 +343,7 @@ const EmployeeDetails = ({ title, route, navigation }) => {
           setData={setData}
         />
       </Modal>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{flex: 1}}>
         <View>
           <TitleHeader
             title={`${route.params?.item?.firstName} ${route.params?.item?.lastName} - #${route.params?.item?.id}`}
@@ -226,7 +351,7 @@ const EmployeeDetails = ({ title, route, navigation }) => {
             handleEdit={handleEdits}
             navigation={navigation}></TitleHeader>
         </View>
-        <ScrollView style={{ marginHorizontal: 5 }}>
+        <ScrollView style={{marginHorizontal: 5}}>
           <View>
             <ProfileImg
               updateImg={() => {
@@ -234,174 +359,170 @@ const EmployeeDetails = ({ title, route, navigation }) => {
               }}
               imagePass={empImage}
             />
-            <View style={{ backgroundColor: COLORS.blue, padding: 10 }}>
+            <View
+              style={{
+                backgroundColor: COLORS.blue,
+                padding: 10,
+                marginHorizontal: 10,
+              }}>
               <Text
-                style={{ fontSize: 16, fontWeight: 'bold', color: COLORS.white }}>
+                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
                 Work
               </Text>
             </View>
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}> Department</Text>-
-                {`${editEmployeeData?.department == undefined?"": editEmployeeData.department}`}
+                <Text style={{fontWeight: 'bold'}}> Department</Text>-
+                {`${
+                  editEmployeeData?.department == undefined
+                    ? ''
+                    : editEmployeeData.department
+                }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}> Location</Text>-
-                {`${editEmployeeData?.location == undefined?"": editEmployeeData.location}`}
+                <Text style={{fontWeight: 'bold'}}> Location</Text>-
+                {`${
+                  editEmployeeData?.location == undefined
+                    ? ''
+                    : editEmployeeData.location
+                }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}> Work Phone</Text>-
-                {`${editEmployeeData?.workPhone == undefined?"": editEmployeeData.workPhone}`}
+                <Text style={{fontWeight: 'bold'}}> Work Phone</Text>-
+                {`${
+                  editEmployeeData?.workPhone == undefined
+                    ? ''
+                    : editEmployeeData.workPhone
+                }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}>Salary Revision Due On</Text>
-                - {`${editEmployeeData?.salaryRevisionDate == undefined?"": editEmployeeData.salaryRevisionDate}`}
+                <Text style={{fontWeight: 'bold'}}>Salary Revision Due On</Text>
+                -{' '}
+                {`${
+                  editEmployeeData?.salaryRevisionDate == undefined
+                    ? ''
+                    : editEmployeeData.salaryRevisionDate
+                }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}>
-                  <Text style={{ fontWeight: 'bold' }}> Date of Joining</Text>
+                <Text style={{fontWeight: 'bold'}}>
+                  <Text style={{fontWeight: 'bold'}}> Date of Joining</Text>
                 </Text>
-                -{`${editEmployeeData?.joiningDate == undefined?"": editEmployeeData.joiningDate}`}
+                -
+                {`${
+                  editEmployeeData?.joiningDate == undefined
+                    ? ''
+                    : editEmployeeData.joiningDate
+                }`}
               </Text>
             </View>
-            <View style={{ margin: 5 }} />
-            <View style={{ backgroundColor: COLORS.blue, padding: 10 }}>
+            <View style={{margin: 5}} />
+            <View
+              style={{
+                backgroundColor: COLORS.blue,
+                padding: 10,
+                marginHorizontal: 10,
+              }}>
               <Text
-                style={{ fontSize: 16, fontWeight: 'bold', color: COLORS.white }}>
+                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
                 Personal
               </Text>
             </View>
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}> Mobile Phone</Text> -
-                {`${editEmployeeData?.mobileNumber == undefined?"": editEmployeeData.mobileNumber}`}
+                <Text style={{fontWeight: 'bold'}}> Mobile Phone</Text> -
+                {`${
+                  editEmployeeData?.mobileNumber == undefined
+                    ? ''
+                    : editEmployeeData.mobileNumber
+                }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}> Blood Group</Text> -
-                {`${editEmployeeData?.bloodGroup == undefined?"": editEmployeeData.bloodGroup}`}
+                <Text style={{fontWeight: 'bold'}}> Blood Group</Text> -
+                {`${
+                  editEmployeeData?.bloodGroup == undefined
+                    ? ''
+                    : editEmployeeData.bloodGroup
+                }`}
               </Text>
             </View>
-            <View style={{ margin: 5 }} />
-            <View style={{ backgroundColor: COLORS.blue, padding: 10 }}>
+            <View style={{margin: 5}} />
+            <View
+              style={{
+                backgroundColor: COLORS.blue,
+                padding: 10,
+                marginHorizontal: 10,
+              }}>
               <Text
-                style={{ fontSize: 16, fontWeight: 'bold', color: COLORS.white }}>
+                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
                 Summary
               </Text>
             </View>
             <View style={styles.txtborder}>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}> Job Description</Text> -
-                {`${editEmployeeData?.jobDesc == undefined?"": editEmployeeData.jobDesc}`}
+                <Text style={{fontWeight: 'bold'}}> Job Description</Text> -
+                {`${
+                  editEmployeeData?.jobDesc == undefined
+                    ? ''
+                    : editEmployeeData.jobDesc
+                }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}> About Me</Text> -
-                {`${editEmployeeData?.aboutme == undefined?"": editEmployeeData.aboutMe}`}
+                <Text style={{fontWeight: 'bold'}}> About Me</Text> -
+                {`${
+                  editEmployeeData?.aboutme == undefined
+                    ? ''
+                    : editEmployeeData.aboutme
+                }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{ fontWeight: 'bold' }}>Ask Me About/Expertise</Text>
-                - {`${editEmployeeData?.expertise == undefined?"": editEmployeeData.expertise}`}
+                <Text style={{fontWeight: 'bold'}}>Ask Me About/Expertise</Text>
+                -{' '}
+                {`${
+                  editEmployeeData?.expertise == undefined
+                    ? ''
+                    : editEmployeeData.expertise
+                }`}
               </Text>
             </View>
-            <View style={{ margin: 5 }} />
-            <View style={{ backgroundColor: COLORS.blue, padding: 10 }}>
+            <View style={{margin: 5}} />
+            <View
+              style={{
+                backgroundColor: COLORS.blue,
+                padding: 10,
+                marginHorizontal: 10,
+              }}>
               <Text
-                style={{ fontSize: 16, fontWeight: 'bold', color: COLORS.white }}>
+                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
                 Work Experience
               </Text>
             </View>
-            {showBox && (
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'space-around',
-                  alignContent: 'center',
-                }}>
-                {workDataGet && workDataGet?.length == 0 ?
-                  <TouchableOpacity
-                    // style={{ alignSelf: "flex-start", margin: sizeWidth(2), borderWidth: 1, borderRadius: 10, padding: sizeWidth(3) }}
-                    // onPress={() => {
-                    //   setModalVisible(true);
-                    //   setModalPrevComp(prevComp)
-                    //   setModalJobTit(jobTit)
-                    //   setModalWorkFromDt(workFromDt)
-                    //   setModalWorkToDt(workToDt)
-                    // }}
-                  >
-                    {/* <FontAwesome5
-                      name={'plus'}
-                      size={20}
-                      style={{ alignSelf: 'center' }}
-                    /> */}
-                  </TouchableOpacity>
-                  :
-                  <>
 
-                    <View style={styles.txtborder}>
-                      <Text style={styles.textcolor}>
-                        <Text style={{ fontWeight: 'bold' }}> Company name</Text> {`- ${prevComp}`}
-                      </Text>
-                      <Text style={styles.textcolor}>
-                        <Text style={{ fontWeight: 'bold' }}> Job Title</Text> {`- ${jobTit}`}
-                      </Text>
-                      <Text Text style={styles.textcolor}>
-                        <Text style={{ fontWeight: 'bold' }}> From Date</Text>  {`- ${workFromDt}`}
-                      </Text>
+            <FlatList
+              data={empGetData}
+              renderItem={renderItemEmpl}
+              keyExtractor={(item, index) => index.toString()}
+            />
 
-                      <Text style={styles.textcolor}>
-                        <Text style={{ fontWeight: 'bold' }}> To Date</Text> {`- ${workToDt}`}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.btn}
-                      onPress={() => {
-                        setModalVisible(true);
-                        setModalPrevComp(prevComp)
-                        setModalJobTit(jobTit)
-                        setModalWorkFromDt(workFromDt)
-                        setModalWorkToDt(workToDt)
-                      }}>
-                      <MaterialCommunityIcons
-                        name={'pencil'}
-                        size={25}
-                        color={COLORS.black}
-                        style={{ alignSelf: 'center' }}
-                      />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.trash}
-                      onPress={() => showConfirmDialog()}>
-                      <FontAwesome5
-                        name={'trash'}
-                        size={20}
-                        color={COLORS.black}
-                        style={{ alignSelf: 'center' }}
-                      />
-                    </TouchableOpacity>
-                  </>
-                }
-              </View>
-            )}
-            <View style={{ margin: 5 }} />
+            <View style={{margin: 5}} />
           </View>
         </ScrollView>
         <View>
-    
           <View style={styles.body}>
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
                 setModalVisible(true);
-                  setModalPrevComp(prevComp)
-                  setModalJobTit(jobTit)
-                  setModalWorkFromDt(workFromDt)
-                  setModalWorkToDt(workToDt)
+                setModalPrevComp(prevComp);
+                setModalJobTit(jobTit);
+                setModalWorkFromDt(workFromDt);
+                setModalWorkToDt(workToDt);
               }}>
               <FontAwesome5
                 name={'plus'}
                 size={20}
                 color={'#ffffff'}
-                style={{ alignSelf: 'center' }}
+                style={{alignSelf: 'center'}}
               />
             </TouchableOpacity>
           </View>
@@ -415,7 +536,11 @@ const EmployeeDetails = ({ title, route, navigation }) => {
             onDismiss={toggleModalVisibility}>
             <View style={styles.viewWrapper}>
               <View style={styles.modalView}>
-                <Text style={styles.underlineTextStyle}>Add Experience</Text>
+                <Text style={styles.underlineTextStyle}>
+                  {global.tempActionType == 'pencil'
+                    ? 'Update Experince'
+                    : 'Add Experince'}
+                </Text>
                 <TextInput
                   placeholder="Previous Company"
                   value={modalprevComp}
@@ -430,7 +555,7 @@ const EmployeeDetails = ({ title, route, navigation }) => {
                   onChangeText={value => setModalJobTit(value)}
                   placeholderTextColor="grey"
                 />
-          
+
                 <View
                   onTouchEndCapture={() => {
                     setShowJoinDatePicker(true);
@@ -459,22 +584,22 @@ const EmployeeDetails = ({ title, route, navigation }) => {
                     placeholderTextColor="grey"
                   />
                 </View>
-      
+
                 <TouchableOpacity
                   style={styles.btnOkModal}
                   onPress={() => okModalHandler()}>
-                  <Text style={{ color: COLORS.blue }}>OK</Text>
+                  <Text style={{color: COLORS.blue}}>OK</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.btnModal}
                   onPress={() => {
-                    setModalJobTit(jobTit)
-                    setModalPrevComp(prevComp)
-                    setModalWorkFromDt(workFromDt)
-                    setModalWorkToDt(workToDt)
-                    setModalVisible(false)
+                    setModalJobTit(jobTit);
+                    setModalPrevComp(prevComp);
+                    setModalWorkFromDt(workFromDt);
+                    setModalWorkToDt(workToDt);
+                    setModalVisible(false);
                   }}>
-                  <Text style={{ color: COLORS.blue }}>CANCEL</Text>
+                  <Text style={{color: COLORS.blue}}>CANCEL</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -561,6 +686,7 @@ const styles = StyleSheet.create({
   },
   textcolor: {
     color: COLORS.black,
+  
   },
   centeredView: {
     flex: 1,
@@ -604,7 +730,7 @@ const styles = StyleSheet.create({
     top: '40%',
     left: '50%',
     elevation: 5,
-    transform: [{ translateX: -(width * 0.4) }, { translateY: -90 }],
+    transform: [{translateX: -(width * 0.4)}, {translateY: -90}],
     height: 330,
     width: width * 0.8,
     backgroundColor: '#fff',

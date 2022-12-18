@@ -58,8 +58,8 @@ export const loginAction = (username, password) => {
           AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
         })
         .catch(({ error, response }) => {
-          console.log(`login error ${response?.data}`);
-          dispatch(showAlertState({ show: true, message: response.data?.message }));
+          // console.log(`login error ${JSON.stringify(response?.data.message)}`);
+          dispatch(showAlertState({ show: true, message: JSON.stringify(response?.data.message) }));
           dispatch(loadingState(false));
         });
     }
@@ -110,7 +110,7 @@ export const registerAction = (username, email, password, confirmpassword) => {
     if (isError) {
       dispatch(errorHandler(error));
     } else {
-      await dispatch(loadingState(true)); 
+      await dispatch(loadingState(true));
       axios
         .post(`${BASE_URL}/Register`, {
           username,
@@ -118,7 +118,6 @@ export const registerAction = (username, email, password, confirmpassword) => {
           password,
         })
         .then(async res => {
-          console.log("resp",res)
           let userInfo = res.data;
           AsyncStorage.setItem('userInfo', '');
           await dispatch(authResponseData(""));

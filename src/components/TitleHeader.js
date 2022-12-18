@@ -10,6 +10,7 @@ import {
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants';
+import { sizeHeight, sizeWidth } from '../Utils/Size';
 
 function TitleHeader({onclick,handleEdit, ...props}) {
   return (
@@ -18,7 +19,7 @@ function TitleHeader({onclick,handleEdit, ...props}) {
         backgroundColor="#165fa8"
         animated
         translucent={true}
-        styles={{width: 100}}
+        styles={{width: sizeWidth(100)}}
       />
       <View style={styles.header}>
         <View style={styles.headerBack}>
@@ -60,11 +61,11 @@ function TitleHeader({onclick,handleEdit, ...props}) {
 const styles = StyleSheet.create({
   container: {},
   header: {
-    height: 110,
+    height: sizeHeight(15),
   },
   headerBack: {
     width: '100%',
-    height: '75%',
+    height: sizeHeight(11.5),
     flexDirection: 'column',
     justifyContent: 'flex-start',
     backgroundColor: COLORS.blue,
@@ -93,27 +94,27 @@ const styles = StyleSheet.create({
   },
   headerBackArrow: {
     alignSelf: 'flex-start',
-    top: -20,
+    top: sizeHeight(-1.5),
     left: -15,
-    width: 30,
-    height: 30,
+    width: sizeWidth(8),
+    height: sizeHeight(30),
   },
 
   title: {
     color: '#FFFFFF',
     fontSize: 18,
-    top: -20,
+    top: sizeHeight(-1.5),
     width: '75%',
   },
   pencil: {
     color: '#FFFFFF',
     fontSize: 25,
-    top: -22,
+    top: sizeHeight(-1.8),
   },
   trash: {
     color: '#FFFFFF',
     fontSize: 20,
-    top: -20,
+    top: sizeHeight(-1.5),
     paddingLeft: 25,
   },
   profileDetails: {

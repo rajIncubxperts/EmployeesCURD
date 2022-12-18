@@ -54,11 +54,13 @@ export const deleteEmployeeAction = id => {
 };
 
 export const createEmployeeAction = (tempData, props) => {
+
   return async dispatch => {
     await dispatch(loadingState(true))
-    const getParseData =  await AsyncStorage.getItem('userInfo');
+    const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
-    axios
+    console.log("tempData", tempData);
+    return axios
       .post(`${BASE_URL}/Employee`, tempData, {
         headers: {
           Authorization:
@@ -66,13 +68,11 @@ export const createEmployeeAction = (tempData, props) => {
         },
       })
       .then(async res => {
-        let resData = res.data;
-      // var test =   await editEmployeeResponseData(resData);
-        console.log('Edit Employee Data POST API ', resData);
-        //dispatch(res.data);
-        //console.log("Test ID", test)
 
-        //props.navigation.goBack()
+        let resData = res.data;
+        await dispatch(loadingState(false))
+        return resData
+        // props.navigation.goBack()
       })
       .catch(e => {
         dispatch(loadingState(false));
@@ -80,6 +80,7 @@ export const createEmployeeAction = (tempData, props) => {
       });
   };
 }
+
 
 export const editEmployeeAction = id => {
   return async dispatch => {
@@ -98,7 +99,8 @@ export const editEmployeeAction = id => {
         console.log('Edit Employee Data ', resData);
         // You can invoke sync or async actions with `dispatch`
         await dispatch(editEmployeeResponseData(resData.result));
-        await dispatch(getWorkEmployeeAction(resData.result?.id));
+        await dispatch(getWorkEmployeeAction([resData.result?.id]));
+        console.log("Rexcx>>>>>>>>>>" , (resData.result.id))
       })
       .catch(e => {
         dispatch(loadingState(false))
@@ -120,7 +122,7 @@ export const getWorkEmployeeAction = id => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Get Work Details Data ', resData);
+        console.log('Get Work Details Data ', JSON.stringify(resData.result));
         // You can invoke sync or async actions with `dispatch`
         await dispatch(getWorkEmployeeResponseData(resData.result));
         await dispatch(loadingState(false))
@@ -134,13 +136,14 @@ export const getWorkEmployeeAction = id => {
 };
 
 export const updateWorkAction = data => {
+  console.log("update data",data)
   return async dispatch => {
     await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
-    const dataPass = data
+    const dataPass = ([data])
     axios
-      .put(`${BASE_URL}/EmployeeWorkExperience`, dataPass, {
+      .put(`${BASE_URL}/EmployeeWorkExperience`, [data], {
         headers: {
           Authorization:
             convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
@@ -160,14 +163,17 @@ export const updateWorkAction = data => {
   };
 };
 
-export const addWorkAction = data => {
+export const addWorkAction = (data) => {
+  console.log("add data",data)
   return async dispatch => {
     await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
-    const dataPass = data
+    console.log("convertPaeseData",convertPaeseData)
+    console.log("Data >>>>>>",[data])
+    const dataPass = ([data])
     axios
-      .post(`${BASE_URL}/EmployeesWorkExperience`, dataPass, {
+      .post(`${BASE_URL}/EmployeesWorkExperience`, [data], {
         headers: {
           Authorization:
             convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
@@ -175,9 +181,8 @@ export const addWorkAction = data => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Add Get Work ', {resData});
-        // You can invoke sync or async actions with `dispatch`
-        global.actionType = "edit"
+        console.log('Add Get Work ', res);
+       global.actionType = "edit"
         await dispatch(getWorkEmployeeAction(dataPass?.employeeId));
       })
       .catch(async e => {

@@ -9,7 +9,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { COLORS } from '../../constants';
+import { COLORS , ROUTES} from '../../constants';
 import { SelectList } from 'react-native-dropdown-select-list';
 import { ScrollView } from 'react-native-gesture-handler';
 import Profile from './Profile';
@@ -56,8 +56,15 @@ const EmployeeForm = props => {
   const [defaultDeptSelected, setDefaultDeptSelected] = React.useState({});
   const [defaultBloodSelected, setDefaultBloodSelected] = React.useState({});
   const [defaultCitySelected, setDefaultCitySelected] = React.useState({});
+  const [imageObj, setimageObj] = useState({
+    uri: '',
+    type: '',
+    tempObj: ''
+  });
   const { editEmployeeData, isLoading } = useSelector(state => state.EmployeeReducer);
   const { errorForm } = useSelector(state => state.AuthReducer);
+
+
 
   const dispatch = useDispatch();
 
@@ -162,15 +169,20 @@ const EmployeeForm = props => {
     );
   };
 
-  handleClick = () => {
+  const handleClick = () => {
     // console.log('Click happened');
     var isError = false;
     var error = {};
-    if (firstName.trim() =='') {
+
+    if (!empImage) {
+      alert('Image is Reqire.')
+      return false
+    }
+    if (firstName == '') {
       error.firstName = "Field can't be empty.";
       isError = true;
     }
-    if (lastName.trim() == '') {
+    if (lastName == '') {
       error.lastName = "Field can't be empty.";
       isError = true;
     }
@@ -208,9 +220,13 @@ const EmployeeForm = props => {
       if (global.tempActionType == 'edit') {
         <Spinner visible={isLoading} />
         updateHandler();
+        navigation.navigate(ROUTES.HOME_DRAWER);
+      
       } else {
         <Spinner visible={isLoading} />
         saveHandler();
+        navigation.navigate(ROUTES.HOME_DRAWER);
+      
       }
     }
   };
@@ -233,18 +249,29 @@ const EmployeeForm = props => {
   };
 
   const cameraHandelr = async () => {
+
+
     let options = {
       mediaType: 'photo',
       includeBase64: true,
     };
     const result = await launchCamera(options);
-    let uri = result.assets[0].uri;
+
     try {
+      let uri = result.assets[0].uri;
       let base64 = result.assets[0].base64;
       let type = result.assets[0].type;
       let tempObj = `data:${type};base64,${base64}`;
-      apiCallForUploadImage(uri, type, tempObj);
-
+      if (!props.route.params?.forNewRegistration) {
+        apiCallForUploadImage(uri, type, tempObj);
+      } else {
+        setEmpImage(tempObj);
+        setimageObj({
+          uri,
+          type,
+          tempObj
+        })
+      }
     } catch (error) {
       console.log(error.message)
       dispatch(loadingState(false))
@@ -258,26 +285,32 @@ const EmployeeForm = props => {
       includeBase64: true,
     };
     const result = await launchImageLibrary(options);
-    let uri = result.assets[0].uri;
+
 
     try {
+      let uri = result.assets[0].uri;
       let base64 = result.assets[0].base64;
       let type = result.assets[0].type;
       let tempObj = `data:${type};base64,${base64}`;
-      apiCallForUploadImage(uri, type, tempObj);
-
-
-
+      if (!props.route.params?.forNewRegistration) {
+        apiCallForUploadImage(uri, type, tempObj);
+      } else {
+        setimageObj({
+          uri,
+          type,
+          tempObj
+        })
+        setEmpImage(tempObj);
+      }
     } catch (error) {
       console.log(error.message)
       dispatch(loadingState(false))
     }
   };
 
-  const apiCallForUploadImage = async (uri, type, tempObj) => {
+  const apiCallForUploadImage = async (uri, type, tempObj, id) => {
+    console.log("id-------   ", id);
     dispatch(loadingState(true))
-
-   
     let formData = new FormData();
 
     let data = {
@@ -289,10 +322,9 @@ const EmployeeForm = props => {
 
 
     const getParseData = await AsyncStorage.getItem('userInfo');
-    console.log("userInfo",getParseData)
     const convertPaeseData = JSON.parse(getParseData);
     axios
-      .post(`${BASE_URL}/UploadProfile?employeeId=${editEmployeeData.id}`, formData, {
+      .post(`${BASE_URL}/UploadProfile?employeeId=${id || editEmployeeData.id}`, formData, {
         headers: {
           Authorization:
             convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
@@ -300,8 +332,14 @@ const EmployeeForm = props => {
         },
       })
       .then(async res => {
+
         if (res.status == 200) {
-          setEmpImage(tempObj);
+          if (!props.route.params?.forNewRegistration) {
+            setEmpImage(tempObj);
+          }
+          else {
+            navigation.goBack();
+          }
         }
 
         dispatch(loadingState(false))
@@ -315,6 +353,7 @@ const EmployeeForm = props => {
   }
 
   const saveHandler = async () => {
+
     const tempObj = {
       "isActive": true,
       "createdBy": 'string',
@@ -332,19 +371,12 @@ const EmployeeForm = props => {
       "aboutme": aboutMe,
       "location": selectCity,
       "department": selectDept,
-      "profileImage": empImage,
       "joiningDate": joinDate,
       "salaryRevisionDate": srdonDate,
-    };
+    }
 
-  // var testId =    await dispatch(editEmployeeAction(global.empId));
-  //   console.log("TestID", testId);
-  //   console.log('Joining Date :-', joinDate);
-  // //  var test = await dispatch(createEmployeeAction(res.data))
-  //   console.log("Save Data",tempObj);
-  //   var Id = tempObj;
-    var data = await dispatch(createEmployeeAction(tempObj, props));
-    console.log("ID >>>>>>>>",test);  
+    let resp = await dispatch(createEmployeeAction(tempObj, props));
+    apiCallForUploadImage(imageObj.uri, imageObj.type, imageObj.tempObj, resp.result);
   };
 
   const updateHandler = async () => {
@@ -391,8 +423,10 @@ const EmployeeForm = props => {
       "joiningDate": joinDate,
       "salaryRevisionDate": srdonDate
     }
+
     console.log("Update Employee", tempObj)
     dispatch(updateEmployeeAction(tempObj, props))
+
   }
 
   return (
@@ -403,7 +437,7 @@ const EmployeeForm = props => {
             title={global.tempActionType == 'edit' ? "Update Employee" : "Create Employee"}
             titleright="Save"
             navigation={props.navigation}
-            onclick={handleClick}></CreateEmpHeader>
+            onclick={() => handleClick()}></CreateEmpHeader>
         </View>
 
         <Profile
@@ -483,8 +517,8 @@ const EmployeeForm = props => {
             save="value"
             placeholder="Select Department"
             inputStyles={{ color: 'black' }}
-            dropdownTextStyles={{ color: 'gery' }}
-            dropdownStyles={{ backgroundColor: 'grey' }}
+            dropdownTextStyles={{ color: 'black' }}
+            dropdownStyles={{ backgroundColor: '#ffffff' }}
           />
           <View style={{ margin: sizeWidth(1) }} />
           <SelectList
@@ -497,8 +531,8 @@ const EmployeeForm = props => {
             save="value"
             placeholder="Select City"
             inputStyles={{ color: 'black' }}
-            dropdownTextStyles={{ color: 'gery' }}
-            dropdownStyles={{ backgroundColor: 'grey' }}
+            dropdownTextStyles={{ color: 'black' }}
+            dropdownStyles={{ backgroundColor: '#ffffff' }}
           />
           <View
             style={[
@@ -625,8 +659,8 @@ const EmployeeForm = props => {
             save="value"
             placeholder="Select Blood Group"
             inputStyles={{ color: 'black' }}
-            dropdownTextStyles={{ color: 'gery' }}
-            dropdownStyles={{ backgroundColor: 'grey' }}
+            dropdownTextStyles={{ color: 'black' }}
+            dropdownStyles={{ backgroundColor: '#ffffff' }}
           />
           <View style={{ margin: sizeWidth(1) }} />
           <View style={{ backgroundColor: COLORS.blue, padding: sizeWidth(2) }}>

@@ -124,12 +124,13 @@ const CustomDrawer = props => {
           onPress={() => changeModalVisible(true)}
           style={{ paddingVertical: sizeWidth(4) }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="exit-outline" size={22} />
+            <Ionicons style={{  color: COLORS.black}} name="exit-outline" size={22} />
             <Text
               style={{
                 fontSize: sizeFont(4),
                 fontFamily: 'Roboto-Medium',
                 marginLeft: sizeWidth(2),
+                color: COLORS.black
               }}>
               Sign Out
             </Text>
