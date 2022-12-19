@@ -42,7 +42,7 @@ export const deleteEmployeeAction = id => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Edit Employee Data ', resData);
+        // console.log('Edit Employee Data ', resData);
         await dispatch(getEmployeeAction());
         await dispatch(loadingState(false))
       })
@@ -68,11 +68,12 @@ export const createEmployeeAction = (tempData, props) => {
         },
       })
       .then(async res => {
-
+          console.log("res add", res);
         let resData = res.data;
         await dispatch(loadingState(false))
+        props.navigation.goBack()
         return resData
-        // props.navigation.goBack()
+      
       })
       .catch(e => {
         dispatch(loadingState(false));
@@ -83,6 +84,7 @@ export const createEmployeeAction = (tempData, props) => {
 
 
 export const editEmployeeAction = id => {
+  debugger;
   return async dispatch => {
     await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
@@ -96,7 +98,7 @@ export const editEmployeeAction = id => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Edit Employee Data ', resData);
+        // console.log('Edit Employee Data ', resData);
         // You can invoke sync or async actions with `dispatch`
         await dispatch(editEmployeeResponseData(resData.result));
         await dispatch(getWorkEmployeeAction([resData.result?.id]));
@@ -122,7 +124,7 @@ export const getWorkEmployeeAction = id => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Get Work Details Data ', JSON.stringify(resData.result));
+        //console.log('Get Work Details Data ', JSON.stringify(resData.result));
         // You can invoke sync or async actions with `dispatch`
         await dispatch(getWorkEmployeeResponseData(resData.result));
         await dispatch(loadingState(false))
@@ -135,26 +137,28 @@ export const getWorkEmployeeAction = id => {
   };
 };
 
-export const updateWorkAction = data => {
+export const updateWorkAction = (data) => {
+  debugger;
   console.log("update data",data)
   return async dispatch => {
     await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     const dataPass = ([data])
+    console.log('EmployeesWorkExperience - Put,  base url => ' +  `${BASE_URL}/EmployeesWorkExperience`)
     axios
-      .put(`${BASE_URL}/EmployeeWorkExperience`, [data], {
+      .put(`${BASE_URL}/EmployeesWorkExperience`, [data], {
         headers: {
           Authorization:
             convertPaeseData == null ? '' : `Bearer ${convertPaeseData.result}`,
         },
       })
       .then(async res => {
-        let resData = res.data;
-        console.log('Updated Get Work ', resData);
+        let resData = res.data; 
+        console.log('Updated Work Employee ', resData);
         // You can invoke sync or async actions with `dispatch`
-        global.actionType = "edit"
-        await dispatch(getWorkEmployeeAction(dataPass?.employeeId));
+        // global.actionType = "edit"
+       //  await dispatch(getWorkEmployeeAction(dataPass?.employeeId));
       })
       .catch(async e => {
         dispatch(loadingState(false))
@@ -162,6 +166,8 @@ export const updateWorkAction = data => {
       });
   };
 };
+
+
 
 export const addWorkAction = (data) => {
   console.log("add data",data)
@@ -181,9 +187,9 @@ export const addWorkAction = (data) => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Add Get Work ', res);
-       global.actionType = "edit"
-        await dispatch(getWorkEmployeeAction(dataPass?.employeeId));
+        console.log('Add Get Work ', res?.data);
+      //  global.actionType = "edit"
+      //   await dispatch(getWorkEmployeeAction(dataPass?.employeeId));
       })
       .catch(async e => {
         dispatch(loadingState(false))
@@ -206,7 +212,7 @@ export const updateEmployeeAction = (tempData, props) => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Edit Employee Data ', resData);
+        // console.log('Edit Employee Data ', resData);
         await editEmployeeResponseData(null);
         await dispatch(loadingState(false))
         props.navigation.goBack()

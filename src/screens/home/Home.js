@@ -94,7 +94,7 @@ const Home = ({ navigation }) => {
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(false);
-    if (employeeData.length < 100) {
+    if (employeeData?.length < 100) {
       try {
         dispatch(getEmployeeAction());
         setRefreshing(false)
@@ -110,7 +110,7 @@ const Home = ({ navigation }) => {
   }, [refreshing]);
 
   const renderEmployeeList = ({ item, index }) => {
-    console.log("Get Data", item);
+    console.log("Get to check Data", item);
     return (
       <>
         <TouchableNativeFeedback
@@ -203,7 +203,7 @@ const Home = ({ navigation }) => {
 
   return (
     <>
-      <Spinner visible={isLoading} />
+      {/* <Spinner size={"large"} color={COLORS.blue} visible={isLoading} /> */}
       <Modal
         transparent={true}
         animationType="fade"

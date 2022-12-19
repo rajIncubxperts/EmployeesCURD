@@ -80,7 +80,9 @@ const EmployeeDetails = ({title, route, navigation}) => {
   const [modalJobTit, setModalJobTit] = useState('');
   const [modalworkFromDt, setModalWorkFromDt] = useState('');
   const [modalworkToDt, setModalWorkToDt] = useState('');
+  const [empExpId, setEmpExpId] = useState('');
   const [empGetData, setempGetData] = useState([]);
+  const [AddOrEdit,setAddOrEdit] = useState('add');
 
   // Create toggleModalVisibility function that will
   // Open and close modal upon button clicks.
@@ -130,32 +132,94 @@ const EmployeeDetails = ({title, route, navigation}) => {
     dispatch(errorFormHandler({}));
   }, []);
 
-  const okModalHandler = async () => {
-    const [data] = {
-      id: 0,
+  // const okModalHandler = async () => {
+  //   const data = {
+  //     id: 0,
+  //     employeeId: global.empId,
+  //     previousCompany: modalprevComp,
+  //     jobTitle: modalJobTit,
+  //     fromDate: moment(new Date(modalworkFromDt)).toISOString(),
+  //     toDate: moment(new Date(modalworkToDt)).toISOString(),
+  //     isActive: true,
+  //   };
+  //   if (workDataGet.length = 0) {
+  //     //   await dispatch(updateWorkAction(data));
+  //     console.log("Add Not working")
+  //   }else{
+  //     await dispatch(addWorkAction(data));
+      
+  //   }
+  // };
+    // console.log('Test', data);
+    // console.log('workDataGet', [workDataGet]);
+    // if (workDataGet.length != 0) {
+    //   await dispatch(updateWorkAction(data));
+    // } else {
+    //   await dispatch(addWorkAction(data));
+    // }
+ 
+  // var object2 = workDataGet.map(obj => obj.id);
+  // console.log("update Id", object2);
+  // console.log('AddOredit is::',AddOrEdit)
+  const updateModalHandler = async () => {
+    //debugger;
+    const dataDel = {
+      id: empExpId
+    }
+    
+    const data = {
+      id: empExpId,
       employeeId: global.empId,
       previousCompany: modalprevComp,
       jobTitle: modalJobTit,
-      fromDate: moment(new Date(modalworkFromDt)).toISOString(),
-      toDate: moment(new Date(modalworkToDt)).toISOString(),
+      fromDate: moment((modalworkFromDt)).toISOString(),
+      toDate: moment((modalworkToDt)).toISOString(),
       isActive: true,
     };
-    console.log('Test', data);
-    console.log('workDataGet', [workDataGet]);
-    if (workDataGet.length != 0) {
-      await dispatch(updateWorkAction([data]));
-    } else {
-      await dispatch(addWorkAction([data]));
+    // if (workDataGet.length != 0) {
+    //   await dispatch(updateWorkAction(data));
+    // } else {
+    //   await dispatch(addWorkAction(data));
+    // }
+  
+    if (AddOrEdit == 'edit') {
+      //   await dispatch(updateWorkAction(data));
+      setModalVisible(false);
+    await dispatch(updateWorkAction(data));
+    
+    }else if(AddOrEdit == 'add'){
+      const data = {
+        id: 0,
+        employeeId: global.empId,
+        previousCompany: modalprevComp,
+        jobTitle: modalJobTit,
+        fromDate: moment(new Date(modalworkFromDt)).toISOString(),
+        toDate: moment(new Date(modalworkToDt)).toISOString(),
+        isActive: true,
+      };
+      await dispatch(addWorkAction(data));
+      setModalVisible(false);
+    }else{
+      await dispatch(updateWorkAction(dataDel));
     }
-  };
+  }
 
+const remove = () => {
+  const index = workDataGet.indexOf(5);
+if (index > -1) { // only splice array when item is found
+  workDataGet.splice(index, 1); // 2nd parameter means remove one item only
+}
+
+}
   useFocusEffect(
     useCallback(() => {
       (async () => {
         if (global.actionType == 'edit') {
           await dispatch(editEmployeeAction(global.empId));
           setTimeout(() => {
-            console.log(' GET EDIT  ', JSON.stringify(editEmployeeData));
+            // console.log(' GET EDIT  ', JSON.stringify(editEmployeeData));
+            const object = workDataGet?.map(obj => obj.id);
+            console.log("Id Display", object)
             console.log(
               ' WORK DETAILS DATA>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<< ',
               JSON.stringify(workDataGet),
@@ -200,8 +264,9 @@ const EmployeeDetails = ({title, route, navigation}) => {
   useEffect(() => {
     getEmpDetails();
   });
-
+  //  console.log('empGetData ::',empGetData);
   const getEmpDetails = async () => {
+    debugger;
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     axios
@@ -217,7 +282,7 @@ const EmployeeDetails = ({title, route, navigation}) => {
         },
       )
       .then(async res => {
-        console.log('get res', res);
+      //  console.log('get res exp added', res);
         setempGetData(res.data.result);
         // let resData = res.data;
         // console.log('Get Work Details Data ', JSON.stringify(resData.result));
@@ -231,7 +296,7 @@ const EmployeeDetails = ({title, route, navigation}) => {
       });
   };
   const handleClicks = item => {
-    console.log('item here', item);
+    //console.log('item here', item);
     setListItem(item);
     setisModalVisible(true);
     // console.log('Cliked Delete');
@@ -247,10 +312,11 @@ const EmployeeDetails = ({title, route, navigation}) => {
   };
 
   const renderItemEmpl = ({item}) => {
-    console.log('Itam here', item);
+
+   console.log('Item here', item);
     return (
       // <View>
-      //   <Text style={{color: 'red'}}>{item.jobTitle}</Text>
+      //   <Text style={{color: 'red'}}>{item.previousCompany}</Text>
       // </View>
       <View
         style={{
@@ -258,7 +324,7 @@ const EmployeeDetails = ({title, route, navigation}) => {
           justifyContent: 'space-around',
           alignContent: 'center',
         }}>
-        {workDataGet && workDataGet?.length === 0 ? (
+        {item?.length === 0 ? (
           <Text
             style={{
               alignSelf: 'flex-start',
@@ -276,32 +342,44 @@ const EmployeeDetails = ({title, route, navigation}) => {
               <View style={{margin:7}}>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> Company name</Text>
-                {`- ${prevComp == undefined ? '' : prevComp}`}
+                {`- ${item.previousCompany == undefined ? '' : item.previousCompany}`}
               </Text>
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> Job Title</Text>
-                {`- ${jobTit == undefined ? '' : jobTit}`}
+                {`- ${item.jobTitle == undefined ? '' : item.jobTitle}`}
               </Text>
               <Text Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> From Date</Text>
-                {`- ${workFromDt == undefined ? '' : workFromDt}`}
+                {`- ${item.fromDate == undefined ? '' : item.fromDate}`}
               </Text>
 
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> To Date</Text>
-                {`- ${workToDt == undefined ? '' : workToDt}`}
+                {`- ${item.toDate == undefined ? '' : item.toDate}`}
               </Text>
               </View>
             </View>
+
+            {/* "id": 229,
+            "employeeId": 981,
+            "previousCompany": "Last One",
+            "jobTitle": "The ",
+            "fromDate": "2022-12-15T18:30:00",
+            "toDate": "2022-12-15T18:30:00",
+            "isActive": true */}
             <TouchableOpacity
               style={styles.btn}
               onPress={() => {
                 setModalVisible(true);
-                setModalPrevComp(prevComp);
-                setModalJobTit(jobTit);
-                setModalWorkFromDt(workFromDt);
-                setModalWorkToDt(workToDt);
-                global.tempActionType = 'pencil';
+                setModalPrevComp(item?.previousCompany);
+                setModalJobTit(item?.jobTitle);
+                setModalWorkFromDt(item?.fromDate);
+                setModalWorkToDt(item?.toDate);
+                setEmpExpId(item?.id)
+                setAddOrEdit('edit')
+                //global.tempActionType = 'pencil';
+                
+                
               }}>
               <MaterialCommunityIcons
                 name={'pencil'}
@@ -313,7 +391,7 @@ const EmployeeDetails = ({title, route, navigation}) => {
 
             <TouchableOpacity
               style={styles.trash}
-              onPress={() => showConfirmDialog()}>
+              onPress={() => remove()}>
               <FontAwesome5
                 name={'trash'}
                 size={20}
@@ -351,6 +429,7 @@ const EmployeeDetails = ({title, route, navigation}) => {
             handleEdit={handleEdits}
             navigation={navigation}></TitleHeader>
         </View>
+
         <ScrollView style={{marginHorizontal: 5}}>
           <View>
             <ProfileImg
@@ -497,26 +576,27 @@ const EmployeeDetails = ({title, route, navigation}) => {
                 Work Experience
               </Text>
             </View>
-
             <FlatList
               data={empGetData}
               renderItem={renderItemEmpl}
               keyExtractor={(item, index) => index.toString()}
             />
-
             <View style={{margin: 5}} />
           </View>
         </ScrollView>
+      
+
         <View>
           <View style={styles.body}>
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
                 setModalVisible(true);
-                setModalPrevComp(prevComp);
-                setModalJobTit(jobTit);
-                setModalWorkFromDt(workFromDt);
-                setModalWorkToDt(workToDt);
+                setModalPrevComp('');
+                setModalJobTit('');
+                setModalWorkFromDt('');
+                setModalWorkToDt('');
+                setAddOrEdit('add')
               }}>
               <FontAwesome5
                 name={'plus'}
@@ -585,9 +665,11 @@ const EmployeeDetails = ({title, route, navigation}) => {
                   />
                 </View>
 
-                <TouchableOpacity
+                <TouchableOpacity 
                   style={styles.btnOkModal}
-                  onPress={() => okModalHandler()}>
+                  onPress={() => updateModalHandler()
+          
+                   }>
                   <Text style={{color: COLORS.blue}}>OK</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -775,7 +857,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     position: 'absolute',
-    right: 100,
+    right: 80,
     top: 20,
   },
   trash: {
@@ -786,7 +868,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     position: 'absolute',
     top: 20,
-    right: 50,
+    right: 35,
   },
   txtborder: {
     backgroundColor: COLORS.grayLight,

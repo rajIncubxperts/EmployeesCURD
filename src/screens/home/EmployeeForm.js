@@ -102,7 +102,7 @@ const EmployeeForm = props => {
       if (global.actionType == "edit") {
         await dispatch(editEmployeeAction(global.empId));
         setTimeout(() => {
-          console.log(" GET EDIT DATA  ", JSON.stringify(editEmployeeData))
+          // console.log(" GET EDIT DATA  ", JSON.stringify(editEmployeeData))
           if (editEmployeeData != null) {
             setFirstName(editEmployeeData?.firstName)
             setLastName(editEmployeeData?.lastName)
