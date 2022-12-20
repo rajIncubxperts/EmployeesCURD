@@ -7,10 +7,6 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Alert,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
 } from 'react-native';
 import {COLORS, ROUTES} from '../../constants';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';

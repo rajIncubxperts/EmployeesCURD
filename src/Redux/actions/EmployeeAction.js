@@ -127,7 +127,7 @@ export const getWorkEmployeeAction = id => {
         //console.log('Get Work Details Data ', JSON.stringify(resData.result));
         // You can invoke sync or async actions with `dispatch`
         await dispatch(getWorkEmployeeResponseData(resData.result));
-        await dispatch(loadingState(false))
+        //await dispatch(loadingState(false))
         global.actionType = ""
       })
       .catch(e => {
@@ -145,7 +145,7 @@ export const updateWorkAction = (data) => {
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     const dataPass = ([data])
-    console.log('EmployeesWorkExperience - Put,  base url => ' +  `${BASE_URL}/EmployeesWorkExperience`)
+  //  console.log('EmployeesWorkExperience - Put,  base url => ' +  `${BASE_URL}/EmployeesWorkExperience`)
     axios
       .put(`${BASE_URL}/EmployeesWorkExperience`, [data], {
         headers: {
@@ -172,7 +172,7 @@ export const updateWorkAction = (data) => {
 export const addWorkAction = (data) => {
   console.log("add data",data)
   return async dispatch => {
-    await dispatch(loadingState(true))
+   // await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     console.log("convertPaeseData",convertPaeseData)
@@ -192,7 +192,7 @@ export const addWorkAction = (data) => {
       //   await dispatch(getWorkEmployeeAction(dataPass?.employeeId));
       })
       .catch(async e => {
-        dispatch(loadingState(false))
+     //   dispatch(loadingState(false))
         console.log(`ADdd Employee error ${e}`);
       });
   };

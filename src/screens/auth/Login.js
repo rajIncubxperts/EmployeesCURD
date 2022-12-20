@@ -70,7 +70,7 @@ const Login = props => {
         {/* <View style={styles.row}>
               <Logo width={100} height={70} style={styles.mr7} />
             </View> */}
-        <Spinner visible={isLoading} />
+        <Spinner  size={"large"} color={COLORS.blue} visible={isLoading} />
         <View style={styles.wFull}>
           <Text style={styles.loginContinueTxt}>Sign in to continue!</Text>
           <View

@@ -132,37 +132,7 @@ const EmployeeDetails = ({title, route, navigation}) => {
     dispatch(errorFormHandler({}));
   }, []);
 
-  // const okModalHandler = async () => {
-  //   const data = {
-  //     id: 0,
-  //     employeeId: global.empId,
-  //     previousCompany: modalprevComp,
-  //     jobTitle: modalJobTit,
-  //     fromDate: moment(new Date(modalworkFromDt)).toISOString(),
-  //     toDate: moment(new Date(modalworkToDt)).toISOString(),
-  //     isActive: true,
-  //   };
-  //   if (workDataGet.length = 0) {
-  //     //   await dispatch(updateWorkAction(data));
-  //     console.log("Add Not working")
-  //   }else{
-  //     await dispatch(addWorkAction(data));
-      
-  //   }
-  // };
-    // console.log('Test', data);
-    // console.log('workDataGet', [workDataGet]);
-    // if (workDataGet.length != 0) {
-    //   await dispatch(updateWorkAction(data));
-    // } else {
-    //   await dispatch(addWorkAction(data));
-    // }
- 
-  // var object2 = workDataGet.map(obj => obj.id);
-  // console.log("update Id", object2);
-  // console.log('AddOredit is::',AddOrEdit)
   const updateModalHandler = async () => {
-    //debugger;
     const dataDel = {
       id: empExpId
     }
@@ -175,13 +145,7 @@ const EmployeeDetails = ({title, route, navigation}) => {
       fromDate: moment((modalworkFromDt)).toISOString(),
       toDate: moment((modalworkToDt)).toISOString(),
       isActive: true,
-    };
-    // if (workDataGet.length != 0) {
-    //   await dispatch(updateWorkAction(data));
-    // } else {
-    //   await dispatch(addWorkAction(data));
-    // }
-  
+    };  
     if (AddOrEdit == 'edit') {
       //   await dispatch(updateWorkAction(data));
       setModalVisible(false);
@@ -204,13 +168,20 @@ const EmployeeDetails = ({title, route, navigation}) => {
     }
   }
 
-const remove = () => {
-  const index = workDataGet.indexOf(5);
-if (index > -1) { // only splice array when item is found
-  workDataGet.splice(index, 1); // 2nd parameter means remove one item only
+const remove = async () => {
+  const dataDel = {
+    id: empExpId,
+    employeeId: global.empId,
+    isActive:false
+  }
+  if(workDataGet == 1){
+console.log("Checking Delete is working or not")
+  }else{
+    await dispatch(updateWorkAction(dataDel));
+}
 }
 
-}
+
   useFocusEffect(
     useCallback(() => {
       (async () => {
@@ -219,7 +190,7 @@ if (index > -1) { // only splice array when item is found
           setTimeout(() => {
             // console.log(' GET EDIT  ', JSON.stringify(editEmployeeData));
             const object = workDataGet?.map(obj => obj.id);
-            console.log("Id Display", object)
+           // console.log("Id Display", object)
             console.log(
               ' WORK DETAILS DATA>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<< ',
               JSON.stringify(workDataGet),
@@ -266,7 +237,7 @@ if (index > -1) { // only splice array when item is found
   });
   //  console.log('empGetData ::',empGetData);
   const getEmpDetails = async () => {
-    debugger;
+    //debugger;
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     axios
@@ -282,24 +253,15 @@ if (index > -1) { // only splice array when item is found
         },
       )
       .then(async res => {
-      //  console.log('get res exp added', res);
         setempGetData(res.data.result);
-        // let resData = res.data;
-        // console.log('Get Work Details Data ', JSON.stringify(resData.result));
-        // // You can invoke sync or async actions with `dispatch`
-        // await dispatch(getWorkEmployeeResponseData(resData.result));
-        // await dispatch(loadingState(false))
-        // global.actionType = ""
       })
       .catch(e => {
         console.log(`Get Employee error ${e}`);
       });
   };
   const handleClicks = item => {
-    //console.log('item here', item);
     setListItem(item);
     setisModalVisible(true);
-    // console.log('Cliked Delete');
   };
 
   const handleEdits = item => {
@@ -313,7 +275,7 @@ if (index > -1) { // only splice array when item is found
 
   const renderItemEmpl = ({item}) => {
 
-   console.log('Item here', item);
+   //console.log('Item here', item);
     return (
       // <View>
       //   <Text style={{color: 'red'}}>{item.previousCompany}</Text>
@@ -359,14 +321,6 @@ if (index > -1) { // only splice array when item is found
               </Text>
               </View>
             </View>
-
-            {/* "id": 229,
-            "employeeId": 981,
-            "previousCompany": "Last One",
-            "jobTitle": "The ",
-            "fromDate": "2022-12-15T18:30:00",
-            "toDate": "2022-12-15T18:30:00",
-            "isActive": true */}
             <TouchableOpacity
               style={styles.btn}
               onPress={() => {
@@ -376,9 +330,7 @@ if (index > -1) { // only splice array when item is found
                 setModalWorkFromDt(item?.fromDate);
                 setModalWorkToDt(item?.toDate);
                 setEmpExpId(item?.id)
-                setAddOrEdit('edit')
-                //global.tempActionType = 'pencil';
-                
+                setAddOrEdit('edit')  
                 
               }}>
               <MaterialCommunityIcons
@@ -391,7 +343,8 @@ if (index > -1) { // only splice array when item is found
 
             <TouchableOpacity
               style={styles.trash}
-              onPress={() => remove()}>
+              onPress={() => {remove();  
+               setEmpExpId(item?.id)}}>  
               <FontAwesome5
                 name={'trash'}
                 size={20}
@@ -430,7 +383,7 @@ if (index > -1) { // only splice array when item is found
             navigation={navigation}></TitleHeader>
         </View>
 
-        <ScrollView style={{marginHorizontal: 5}}>
+        <SafeAreaView style={{marginHorizontal: 5}}>
           <View>
             <ProfileImg
               updateImg={() => {
@@ -583,10 +536,10 @@ if (index > -1) { // only splice array when item is found
             />
             <View style={{margin: 5}} />
           </View>
-        </ScrollView>
+        </SafeAreaView>
       
 
-        <View>
+        <View style={{flex:1}}>
           <View style={styles.body}>
             <TouchableOpacity
               style={styles.button}

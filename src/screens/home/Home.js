@@ -63,38 +63,14 @@ const Home = ({ navigation }) => {
   const changeModalVisible = bool => {
     setisModalVisible(bool);
   };
-  // const changeModalActionVisible = bool => {
-  //   setisModalVisible(bool);
-  // }
+
   const setData = data => {
     setchooseData(data);
   };
 
-  const showConfirmDialog = () => {
-    return Alert.alert(
-      'Delete Employee?',
-      'Are you sure you want to remove delete employee?',
-      [
-        // The "Yes" button
-        {
-          text: 'Yes',
-          onPress: () => {
-            deleteHandler(item?.id);
-            setShowBox(false);
-          },
-        },
-        // The "No" button
-        // Does nothing but dismiss the dialog when tapped
-        {
-          text: 'No',
-        },
-      ],
-    );
-  };
-
   const onRefresh = React.useCallback(async () => {
     setRefreshing(false);
-    if (employeeData?.length < 100) {
+    if (employeeData?.length < 1) {
       try {
         dispatch(getEmployeeAction());
         setRefreshing(false)
@@ -103,14 +79,14 @@ const Home = ({ navigation }) => {
       }
     }
     else{
-      //ToastAndroid.show('No more new data available', ToastAndroid.SHORT);
-      Alert.alert('No more new data available')
+      dispatch(getEmployeeAction());
+      setRefreshing(false)
+    // Alert.alert('No more new data available')
       setRefreshing(false)
     }
   }, [refreshing]);
 
   const renderEmployeeList = ({ item, index }) => {
-    console.log("Get to check Data", item);
     return (
       <>
         <TouchableNativeFeedback
@@ -148,7 +124,6 @@ const Home = ({ navigation }) => {
 
                 <TouchableOpacity
                   style={styles.trash}
-                  // onPress={() => }
                   onPress={() => {
                     setListItem(item);
                     setisModalVisible(true);
@@ -185,18 +160,6 @@ const Home = ({ navigation }) => {
             </Card>
           </View>
         </TouchableNativeFeedback>
-        {/* <View style={styles.body}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER)}>
-          <FontAwesome5
-            name={'plus'}
-            size={20}
-            color={'#ffffff'}
-            style={{alignSelf: 'center'}}
-          />
-        </TouchableOpacity>
-      </View> */}
       </>
     );
   };

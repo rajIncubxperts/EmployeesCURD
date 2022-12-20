@@ -476,8 +476,6 @@ const EmployeeForm = props => {
             />
           </View>
            {errorForm.firstName ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
-          
-          {/* {firstName ==  "" || null ?  <Text style={{ color: 'red' }}>{errorForm.firstName}</Text> : null } */}
           <View
             style={[
               { borderColor: errorForm.lastName ? 'red' : null, borderWidth: 1 },

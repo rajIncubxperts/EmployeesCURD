@@ -27,7 +27,7 @@ export const loginAction = (username, password) => {
     } else {
       await dispatch(loadingState(true));
       fetch(`${BASE_URL}/Login`, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
@@ -39,7 +39,7 @@ export const loginAction = (username, password) => {
         .then(res => {
           res.json();
         })
-        .then(data => console.log(data))  // ur data is here
+        .then(data => console.log(data))  
         .catch(err => console.log("api Erorr: ", err));
       axios
         .post(`${BASE_URL}/Login`, {
@@ -47,18 +47,13 @@ export const loginAction = (username, password) => {
           password,
         })
         .then(async res => {
-          console.log('res >>>>>>>>>>>>>>>>> ', res);
           let userInfo = res.data;
           let Token = userInfo.result;
-          console.log('Token', Token);
-          console.log('UserInfo', userInfo.result);
-          // You can invoke sync or async actions with `dispatch`
           await dispatch(authResponseData(userInfo));
           await dispatch(loadingState(false));
           AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
         })
         .catch(({ error, response }) => {
-          // console.log(`login error ${JSON.stringify(response?.data.message)}`);
           dispatch(showAlertState({ show: true, message: JSON.stringify(response?.data.message) }));
           dispatch(loadingState(false));
         });
@@ -97,13 +92,11 @@ export const registerAction = (username, email, password, confirmpassword) => {
 
     if (confirmpassword === null || confirmpassword === '') {
       error.confirmpassword = "Password can't be empty.";
-      // isError = TransformStreamDefaultController
       isError = true;
     } else {
       if (confirmpassword !== password) {
         error.confirmpassword = 'Passwoad and confirm password should be same.';
         isError = true;
-        //debugger
       }
     }
 
@@ -122,13 +115,12 @@ export const registerAction = (username, email, password, confirmpassword) => {
           AsyncStorage.setItem('userInfo', '');
           await dispatch(authResponseData(""));
           await dispatch(loadingState(false));
-          console.log(userInfo);
         })
         .catch(e => {
           console.log(`register error ${e}`);
           dispatch(loadingState(false));
         });
-    } // You can invoke sync or async actions with `dispatch`
+    } 
   };
 };
 
