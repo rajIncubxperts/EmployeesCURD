@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Image,
   View,
-  Platform,
-  TouchableOpacity,
   Text,
   StyleSheet,
   TextInput,
@@ -18,13 +15,12 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import CreateEmpHeader from '../../components/CreateEmpHeader';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialDialog } from 'react-native-material-dialog';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { errorFormHandler } from '../../Redux/actions/AuthAction';
 import { createEmployeeAction, loadingState } from './../../Redux/actions/EmployeeAction';
 import { useFocusEffect } from '@react-navigation/native';
-import { editEmployeeAction, editEmployeeResponseData, updateEmployeeAction } from './../../Redux/actions/EmployeeAction';
+import { editEmployeeAction, updateEmployeeAction } from './../../Redux/actions/EmployeeAction';
 import { sizeFont, sizeWidth } from './../../Utils/Size';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -102,7 +98,6 @@ const EmployeeForm = props => {
       if (global.actionType == "edit") {
         await dispatch(editEmployeeAction(global.empId));
         setTimeout(() => {
-          // console.log(" GET EDIT DATA  ", JSON.stringify(editEmployeeData))
           if (editEmployeeData != null) {
             setFirstName(editEmployeeData?.firstName)
             setLastName(editEmployeeData?.lastName)
@@ -137,16 +132,6 @@ const EmployeeForm = props => {
     })()
   }, [editEmployeeData],))
 
-
-  //console.log(selectDept)
-  console.log(selectCity)
-
-  // const onChangeTextValue = text => {
-  //   if (+text) {
-  //     setText(text);
-  //   }
-  // };
-
   // On date change method
   const onToDateChange = (event, selectedDate) => {
     console.log('date testtttt', event, selectedDate);
@@ -170,7 +155,6 @@ const EmployeeForm = props => {
   };
 
   const handleClick = () => {
-    // console.log('Click happened');
     var isError = false;
     var error = {};
 
@@ -520,7 +504,6 @@ const EmployeeForm = props => {
           />
           <View style={{ margin: sizeWidth(1) }} />
           <SelectList
-            //defaultOption={{key: '1', value: 'Pune'}}
             setSelected={val => {
               setSelectCity(val)
             }}
@@ -578,9 +561,6 @@ const EmployeeForm = props => {
                 );
                 setJoinDate(text);
               }}
-            //showSoftInputOnFocus={false}
-            // keyboardType="numeric"
-            //editable={false}
             />
           </View>
           {errorForm.joinDate == null ? null : (
@@ -611,7 +591,6 @@ const EmployeeForm = props => {
                 );
                 setSrdonDate(text);
               }}
-            // editable={false}
             />
           </View>
           {errorForm.srdonDate == null ? null : (

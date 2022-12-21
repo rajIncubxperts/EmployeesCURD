@@ -13,7 +13,6 @@ import { EmployeeForm, Home, EmployeeDetails } from '../screens';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import Octicons from 'react-native-vector-icons/Octicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomDrawer from '../components/CustomDrawer';
 import { sizeWidth } from '../Utils/Size';

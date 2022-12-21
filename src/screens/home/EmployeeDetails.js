@@ -22,6 +22,8 @@ import moment from 'moment';
 import TitleHeader from '../../components/TitleHeader';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
+import { errorFormHandler } from '../../Redux/actions/AuthAction';
+
 import Spinner from 'react-native-loading-spinner-overlay';
 import {
   editEmployeeAction,
@@ -33,7 +35,6 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import ProfileImg from '../../components/ProfileImg';
-import {errorFormHandler} from '../../Redux/actions/AuthAction';
 import {useNavigation} from '@react-navigation/native';
 import {sizeFont, sizeWidth} from './../../Utils/Size';
 import PropupModel from '../../components/PropupModel';
@@ -43,9 +44,9 @@ const EmployeeDetails = ({title, route, navigation}) => {
   const {workDataGet, editEmployeeData, isLoading} = useSelector(
     state => state.EmployeeReducer,
   );
+  const { errorForm } = useSelector(state => state.AuthReducer);
   const dispatch = useDispatch();
 
-  // const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisibles, setisModalVisible] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -84,8 +85,6 @@ const EmployeeDetails = ({title, route, navigation}) => {
   const [empGetData, setempGetData] = useState([]);
   const [AddOrEdit,setAddOrEdit] = useState('add');
 
-  // Create toggleModalVisibility function that will
-  // Open and close modal upon button clicks.
   const toggleModalVisibility = () => {
     setModalVisible(!isModalVisible);
   };
@@ -133,52 +132,80 @@ const EmployeeDetails = ({title, route, navigation}) => {
   }, []);
 
   const updateModalHandler = async () => {
-    const dataDel = {
-      id: empExpId
+
+    var isError = false;
+    var error = {};
+
+    if (modalJobTit == '') {
+      error.modalJobTit = "Field can't be empty.";
+      isError = true;
     }
-    
-    const data = {
-      id: empExpId,
-      employeeId: global.empId,
-      previousCompany: modalprevComp,
-      jobTitle: modalJobTit,
-      fromDate: moment((modalworkFromDt)).toISOString(),
-      toDate: moment((modalworkToDt)).toISOString(),
-      isActive: true,
-    };  
-    if (AddOrEdit == 'edit') {
-      //   await dispatch(updateWorkAction(data));
-      setModalVisible(false);
-    await dispatch(updateWorkAction(data));
-    
-    }else if(AddOrEdit == 'add'){
+    if (modalprevComp == '') {
+      error.modalprevComp = "Field can't be empty.";
+      isError = true;
+    }
+    if (modalworkFromDt == '') {
+      error.modalworkFromDt = "Field can't be empty.";
+      isError = true;
+    }
+    if (modalworkToDt == '') {
+      error.modalworkToDt = "Field can't be empty.";
+      isError = true;
+    }
+    if (isError) {
+      dispatch(errorFormHandler(error));
+    }else{
+      const dataDel = {
+        id: empExpId
+      }
+      
       const data = {
-        id: 0,
+        id: empExpId,
         employeeId: global.empId,
         previousCompany: modalprevComp,
         jobTitle: modalJobTit,
-        fromDate: moment(new Date(modalworkFromDt)).toISOString(),
-        toDate: moment(new Date(modalworkToDt)).toISOString(),
+        fromDate: moment((modalworkFromDt)).toISOString(),
+        toDate: moment((modalworkToDt)).toISOString(),
         isActive: true,
-      };
-      await dispatch(addWorkAction(data));
-      setModalVisible(false);
-    }else{
-      await dispatch(updateWorkAction(dataDel));
+      };  
+      if (AddOrEdit == 'edit') {
+        //   await dispatch(updateWorkAction(data));
+        setModalVisible(false);
+      await dispatch(updateWorkAction(data));
+      
+      }else if(AddOrEdit == 'add'){
+        const data = {
+          id: 0,
+          employeeId: global.empId,
+          previousCompany: modalprevComp,
+          jobTitle: modalJobTit,
+          fromDate: moment((modalworkFromDt)).toISOString(),
+          toDate: moment((modalworkToDt)).toISOString(),
+          isActive: true,
+        };
+        await dispatch(addWorkAction(data));
+        setModalVisible(false);
+      }else{
+        await dispatch(updateWorkAction(dataDel));
+      }
     }
+   
   }
 
 const remove = async () => {
+  //debugger;
   const dataDel = {
     id: empExpId,
     employeeId: global.empId,
     isActive:false
   }
-  if(workDataGet == 1){
-console.log("Checking Delete is working or not")
+  if(workDataGet == 0){
+  console.log("Checking Delete is working or not")
   }else{
     await dispatch(updateWorkAction(dataDel));
 }
+//  await dispatch(updateWorkAction(dataDel));
+//  console.log("Date Work E", dataDel)
 }
 
 
@@ -188,13 +215,7 @@ console.log("Checking Delete is working or not")
         if (global.actionType == 'edit') {
           await dispatch(editEmployeeAction(global.empId));
           setTimeout(() => {
-            // console.log(' GET EDIT  ', JSON.stringify(editEmployeeData));
             const object = workDataGet?.map(obj => obj.id);
-           // console.log("Id Display", object)
-            console.log(
-              ' WORK DETAILS DATA>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<< ',
-              JSON.stringify(workDataGet),
-            );
             if (workDataGet != null) {
               setModalVisible(false);
               setPrevComp(workDataGet[0]?.previousCompany);
@@ -235,9 +256,7 @@ console.log("Checking Delete is working or not")
   useEffect(() => {
     getEmpDetails();
   });
-  //  console.log('empGetData ::',empGetData);
   const getEmpDetails = async () => {
-    //debugger;
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     axios
@@ -275,11 +294,7 @@ console.log("Checking Delete is working or not")
 
   const renderItemEmpl = ({item}) => {
 
-   //console.log('Item here', item);
     return (
-      // <View>
-      //   <Text style={{color: 'red'}}>{item.previousCompany}</Text>
-      // </View>
       <View
         style={{
           flex: 1,
@@ -312,12 +327,12 @@ console.log("Checking Delete is working or not")
               </Text>
               <Text Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> From Date</Text>
-                {`- ${item.fromDate == undefined ? '' : item.fromDate}`}
+                {`- ${item.fromDate == undefined ? '' :  moment(item.fromDate).format('DD MMM YYYY')}`}
               </Text>
 
               <Text style={styles.textcolor}>
                 <Text style={{fontWeight: 'bold'}}> To Date</Text>
-                {`- ${item.toDate == undefined ? '' : item.toDate}`}
+                {`- ${item.toDate == undefined ? '' : moment(item.toDate).format('DD MMM YYYY')}`}
               </Text>
               </View>
             </View>
@@ -383,7 +398,7 @@ console.log("Checking Delete is working or not")
             navigation={navigation}></TitleHeader>
         </View>
 
-        <SafeAreaView style={{marginHorizontal: 5}}>
+        <ScrollView style={{marginHorizontal: 5}}>
           <View>
             <ProfileImg
               updateImg={() => {
@@ -433,7 +448,7 @@ console.log("Checking Delete is working or not")
                 {`${
                   editEmployeeData?.salaryRevisionDate == undefined
                     ? ''
-                    : editEmployeeData.salaryRevisionDate
+                    :  moment(editEmployeeData.salaryRevisionDat).format('DD MMM YYYY')
                 }`}
               </Text>
               <Text style={styles.textcolor}>
@@ -444,7 +459,7 @@ console.log("Checking Delete is working or not")
                 {`${
                   editEmployeeData?.joiningDate == undefined
                     ? ''
-                    : editEmployeeData.joiningDate
+                    :  moment(editEmployeeData.joiningDate).format('DD MMM YYYY')
                 }`}
               </Text>
             </View>
@@ -529,6 +544,7 @@ console.log("Checking Delete is working or not")
                 Work Experience
               </Text>
             </View>
+            
             <FlatList
               data={empGetData}
               renderItem={renderItemEmpl}
@@ -536,7 +552,7 @@ console.log("Checking Delete is working or not")
             />
             <View style={{margin: 5}} />
           </View>
-        </SafeAreaView>
+        </ScrollView>
       
 
         <View style={{flex:1}}>
@@ -574,13 +590,27 @@ console.log("Checking Delete is working or not")
                     ? 'Update Experince'
                     : 'Add Experince'}
                 </Text>
-                <TextInput
+            <View>
+            <TextInput
                   placeholder="Previous Company"
                   value={modalprevComp}
                   style={styles.textInput}
-                  onChangeText={value => setModalPrevComp(value)}
+                  //onChangeText={value => setModalPrevComp(value)}
+                  onChangeText={text => {
+                    dispatch(
+                      errorFormHandler({
+                        ...errorForm,
+                        modalprevComp: '',
+                      }),
+                    );
+                    setFirstName(text.trim());
+                    
+                  }}
                   placeholderTextColor="grey"
                 />
+
+            </View>
+            {errorForm.modalprevComp ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
                 <TextInput
                   placeholder="Job Title"
                   value={modalJobTit}

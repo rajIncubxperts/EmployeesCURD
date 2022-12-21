@@ -1,4 +1,5 @@
 export const LOADING = 'Loading';
+export const LISTLOADING = 'ListLoading';
 export const ERROR = 'Error';
 export const ERROR_FORM = 'Error Form';
 export const ERROR_REG = 'Error Register';

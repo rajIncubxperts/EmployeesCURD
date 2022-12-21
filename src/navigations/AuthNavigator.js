@@ -2,7 +2,6 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {
   Login,
-  ForgotPassword,
   Register,
   EmployeeForm,
   EmployeeDetails,
@@ -50,20 +49,6 @@ function AuthNavigator() {
           headerShown: true,
         }}
       />
-      <Stack.Screen
-        name={ROUTES.FORGOT_PASSWORD}
-        component={ForgotPassword}
-        options={({route}) => ({
-          headerTintColor: COLORS.white,
-          // headerBackTitle: 'Back',
-          headerBackTitleVisible: false,
-          headerStyle: {
-            backgroundColor: COLORS.primary,
-          },
-          title: route.params.userId,
-        })}
-      />
-
       <Stack.Screen
         name={ROUTES.LOGIN}
         component={Login}

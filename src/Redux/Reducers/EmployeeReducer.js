@@ -1,9 +1,10 @@
-import { GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA, GET_WORK_EMPLOYEE_DATA,LOADING } from '../Types/types';
+import { GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA, GET_WORK_EMPLOYEE_DATA,LOADING, LISTLOADING } from '../Types/types';
 
 const initialState = {
-  employeeData: null,
+  employeeData: {pageSize: 0, pageNum: 0, result:[]},
   editEmployeeData: null,
   isLoading: false,
+  listLoading: false,
   workDataGet: null
 };
 
@@ -29,6 +30,11 @@ const EmployeeReducer = (state = initialState, action) => {
         ...state,
         isLoading: action.payload,
       };
+      case LISTLOADING:
+        return {
+          ...state,
+          listLoading: action.payload,
+        };
     default:
       return state;
   }

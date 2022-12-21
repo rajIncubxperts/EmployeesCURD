@@ -4,10 +4,10 @@ import {
   TouchableNativeFeedback,
   TouchableOpacity,
   View,
-  Alert,
   Modal,
   FlatList,
-  RefreshControl
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useState, useCallback } from 'react';
 import { COLORS, ROUTES } from '../../constants';
@@ -28,24 +28,23 @@ import { authResponseData } from '../../Redux/actions/AuthAction';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { sizeFont, sizeWidth } from './../../Utils/Size';
-
-
-
+import ListLoader from '../../components/ListLoader';
 
 const Home = ({ navigation }) => {
-  const [showBox, setShowBox] = useState(true);
   const [isModalVisible, setisModalVisible] = useState(false);
   const [listItem, setListItem] = useState(null);
   const [chooseData, setchooseData] = useState();
   const [refreshing, setRefreshing] = React.useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const { employeeData, isLoading } = useSelector(state => state.EmployeeReducer);
+  const { employeeData, isLoading, } = useSelector(state => state.EmployeeReducer);
+  const {pageSize, pageNum, result } = employeeData;
   const dispatch = useDispatch();
 
   useFocusEffect(
     useCallback(() => {
       dispatch(editEmployeeResponseData(null));
-      dispatch(getEmployeeAction());
+      dispatch(getEmployeeAction({pageNum: 1, pageSize: 5, result: null}));
       (async () => {
         const getParseData = await AsyncStorage.getItem('userInfo');
         const convertPaeseData = JSON.parse(getParseData);
@@ -70,22 +69,43 @@ const Home = ({ navigation }) => {
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(false);
-    if (employeeData?.length < 1) {
+    if (result?.length < 1) {
       try {
-        dispatch(getEmployeeAction());
+        dispatch(getEmployeeAction({pageNum: 1, pageSize: 5, result: null}));
         setRefreshing(false)
       } catch (error) {
         console.error(error);
       }
     }
     else{
-      dispatch(getEmployeeAction());
+      dispatch(getEmployeeAction({pageNum: 1, pageSize: 5, result: null}));
       setRefreshing(false)
     // Alert.alert('No more new data available')
       setRefreshing(false)
     }
   }, [refreshing]);
 
+  const onEndReached = React.useCallback(async () => {
+ setLoading(true);
+    dispatch(getEmployeeAction({pageNum: pageNum + 1, pageSize: 5, result: result}));
+    setLoading(false)
+  });
+  const renderFooter = () =>  <ListLoader />
+  // const renderFooter = () => { 
+  //   return (
+  //     // Footer View with Loader
+  //     <View style={styles.footer}>
+  //       {loading ? (
+  //         <>
+  //         <ActivityIndicator
+  //           color="black"
+  //           style={{margin: 10}} />
+  //           <Text style={{color:COLORS.black, alignSelf:'center'}}>Loading</Text>
+  //           </>
+  //       ) : null}
+  //     </View>
+  //   );
+  // };
   const renderEmployeeList = ({ item, index }) => {
     return (
       <>
@@ -163,6 +183,7 @@ const Home = ({ navigation }) => {
       </>
     );
   };
+   console.log('is lOadin in Home >>',isLoading);
 
   return (
     <>
@@ -180,7 +201,7 @@ const Home = ({ navigation }) => {
           setData={setData}
         />
       </Modal>
-      {employeeData && employeeData?.length == 0 ? (
+      {result && result?.length == 0 ? (
         <View
           style={{ alignItems: 'center', justifyContent: 'flex-end', flex: 1 }}>
           <Text
@@ -194,12 +215,16 @@ const Home = ({ navigation }) => {
         </View>
       ) : (
         <FlatList
-          data={employeeData}
+          data={result}
           renderItem={renderEmployeeList}
           keyExtractor={(item, index) => index.toString()}            
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
+          onEndReachedThreshold={0.9}
+          onEndReached={onEndReached}
+          ListFooterComponent={renderFooter}
+          refreshing={false}
           
         />
           
@@ -227,6 +252,12 @@ const Home = ({ navigation }) => {
 export default Home;
 
 const styles = StyleSheet.create({
+  footer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+    marginBottom: 10
+  },
   body: {
     flex: 1,
   },
