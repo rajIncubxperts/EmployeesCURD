@@ -4,7 +4,7 @@ import { GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA, LOADING, GET_WORK_EMPLOYEE_DATA 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getEmployeeAction = ({pageNum, pageSize, result}) => {
-  debugger;
+  //debugger;
   return async dispatch => {
     await dispatch(loadingState(true));
     await dispatch(listloadingState(true))
@@ -20,9 +20,16 @@ export const getEmployeeAction = ({pageNum, pageSize, result}) => {
       })
       .then(async res => {
         let resData = res.data;
-        console.log('Get Employee Data ', resData);
-        debugger
-        await dispatch(getEmployeeResponseData({pageNum: pageNum, pageSize: pageSize, result: result == null? resData.result : [...result, ...resData.result]}));
+        // console.log('Get Employee Data ', resData);
+       // debugger
+        await dispatch(getEmployeeResponseData({
+          pageNum: pageNum, 
+          pageSize: pageSize, 
+          result: result == null? resData.result : [...result, ...resData.result], 
+          endOfList: resData.result.length == 0 ? true:false
+        }
+          ));
+          // console.log("res get data ::" , resData.result)
         await dispatch(loadingState(false));
         await dispatch(listloadingState(false))
       })
@@ -47,7 +54,8 @@ export const deleteEmployeeAction = id => {
       })
       .then(async res => {
         let resData = res.data;
-        await dispatch(getEmployeeAction());
+       // await dispatch(getEmployeeAction(resData.result));
+       dispatch(getEmployeeAction({pageNum: 1, pageSize: 10, result: null}));
         await dispatch(loadingState(false))
       })
       .catch(e => {
@@ -63,7 +71,7 @@ export const createEmployeeAction = (tempData, props) => {
     await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
-    console.log("tempData", tempData);
+    // console.log("tempData", tempData);
     return axios
       .post(`${BASE_URL}/Employee`, tempData, {
         headers: {
@@ -74,6 +82,7 @@ export const createEmployeeAction = (tempData, props) => {
       .then(async res => {
           console.log("res add", res);
         let resData = res.data;
+        await dispatch(getEmployeeAction({pageNum: 1, pageSize: 10, result: null}));
         await dispatch(loadingState(false))
         props.navigation.goBack()
         return resData
@@ -103,19 +112,21 @@ export const editEmployeeAction = id => {
         let resData = res.data;
         await dispatch(editEmployeeResponseData(resData.result));
         await dispatch(getWorkEmployeeAction([resData.result?.id]));
+      //  await dispatch(getEmployeeAction({pageNum: 1, pageSize: 10, result: null}));
+
        await dispatch(loadingState(false))
       //  console.log("Rexcx>>>>>>>>>>" , (resData.result.id))
       })
       .catch(e => {
         dispatch(loadingState(false))
-        console.log(`Get Employee error ${e}`);
+        console.log(`Get Employee edit error ${e}`);
       });
   };
 };
 
 export const getWorkEmployeeAction = id => {
   return async dispatch => {
-    await dispatch(loadingState(true))
+//    await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     axios
@@ -133,7 +144,7 @@ export const getWorkEmployeeAction = id => {
       })
       .catch(e => {
         dispatch(loadingState(false))
-        console.log(`Get Employee error ${e}`);
+        console.log(`Get Employee WorkExp error ${e}`);
       });
   };
 };
@@ -145,7 +156,7 @@ export const updateWorkAction = (data) => {
     const getParseData = await AsyncStorage.getItem('userInfo');
     const convertPaeseData = JSON.parse(getParseData);
     const dataPass = ([data])
-    console.log('EmployeesWorkExperience - Put,  base url => ' +  `${BASE_URL}/EmployeesWorkExperience`)
+   // console.log('EmployeesWorkExperience - Put,  base url => ' +  `${BASE_URL}/EmployeesWorkExperience`)
     axios
       .put(`${BASE_URL}/EmployeesWorkExperience`, [data], {
         headers: {
@@ -155,6 +166,7 @@ export const updateWorkAction = (data) => {
       })
       .then(async res => {
         let resData = res.data; 
+        await dispatch(getWorkEmployeeAction(data.employeeId))
         await dispatch(loadingState(false))
       })
       .catch(async e => {
@@ -193,6 +205,7 @@ export const addWorkAction = (data) => {
 };
 
 export const updateEmployeeAction = (tempData, props) => {
+  debugger
   return async dispatch => {
     await dispatch(loadingState(true))
     const getParseData = await AsyncStorage.getItem('userInfo');
@@ -206,13 +219,14 @@ export const updateEmployeeAction = (tempData, props) => {
       })
       .then(async res => {
         let resData = res.data;
-        await editEmployeeResponseData(null);
+       // await editEmployeeResponseData(null);
+        await dispatch(getEmployeeAction({pageNum: 1, pageSize: 10, result: null}));
         await dispatch(loadingState(false))
         props.navigation.goBack()
       })
       .catch(async e => {
         await dispatch(loadingState(false))
-        console.log(`Get Employee error ${e}`);
+        console.log(`Get Employee Update error ${e}`);
       });
   };
 };

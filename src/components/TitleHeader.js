@@ -25,10 +25,6 @@ function TitleHeader({onclick,handleEdit, ...props}) {
         <View style={styles.headerBack}>
           <View style={styles.headerControlBar}>
             <TouchableOpacity onPress={() => props.navigation.goBack()}>
-              {/* <Image
-                source={require('../assets/BackArrow.png')}
-                resizeMode="contain"
-               ></Image> */}
               <FontAwesome5
                 name="arrow-left"
                 size={20}
@@ -36,7 +32,7 @@ function TitleHeader({onclick,handleEdit, ...props}) {
                 color={COLORS.white}
               />
             </TouchableOpacity>
-            <Text style={styles.title}> {props.title}</Text>
+            <Text ellipsizeMode='tail' numberOfLines={1} style={styles.title}> {props.title}</Text>
             <View style={{flexDirection: 'row'}}>
               <MaterialCommunityIcons
                 name="pencil"
@@ -104,12 +100,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     top: sizeHeight(-1.5),
-    width: '75%',
+    width: '65%',
   },
   pencil: {
     color: '#FFFFFF',
     fontSize: 25,
     top: sizeHeight(-1.8),
+    marginLeft:20
   },
   trash: {
     color: '#FFFFFF',

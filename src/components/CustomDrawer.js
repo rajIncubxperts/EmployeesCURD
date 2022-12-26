@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import {
-  ImageBackground,
   StyleSheet,
   Image,
   View,
@@ -8,7 +7,6 @@ import {
   TouchableOpacity,
   Text,
   Modal,
-  Alert,
 } from 'react-native';
 import {
   DrawerContentScrollView,
@@ -29,42 +27,22 @@ const { width } = Dimensions.get('screen');
 
 const CustomDrawer = props => {
   const navigation = useNavigation();
-  const { isLoading, logout } = useContext(AuthContext);
   const [isModalVisible, setisModalVisible] = useState(false);
-  const dispatch = useDispatch();
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
-  const [showBox, setShowBox] = useState(true);
   const [chooseData, setchooseData] = useState();
 
-  const signOutHandler = async () => {
-    await AsyncStorage.removeItem('userInfo');
-    await dispatch(authResponseData(null));
-    forceUpdate();
-  };
+  // const signOutHandler = async () => {
+  //   await AsyncStorage.removeItem('userInfo');
+  //   await dispatch(authResponseData(null));
+  //   forceUpdate();
+  // };
 
   const changeModalVisible = bool => {
     setisModalVisible(bool);
   };
   const setData = data => {
     setchooseData(data);
-  };
-
-  const showConfirmDialog = async () => {
-    return Alert.alert('Logout', 'Are you sure you want to logout?', [
-      {
-        text: 'Yes',
-        onPress: () => {
-          signOutHandler();
-        },
-      },
-      // The "No" button
-      // Does nothing but dismiss the dialog when tapped
-      {
-        text: 'No',
-        color: 'red',
-      },
-    ]);
   };
 
   return (
@@ -153,7 +131,4 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: COLORS.white,
   },
-  // drawerListWrapper: {
-  //   marginTop: 35,
-  // },
 });

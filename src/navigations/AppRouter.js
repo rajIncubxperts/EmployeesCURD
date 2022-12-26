@@ -21,11 +21,12 @@ export default function AppRouter() {
             } else {
                 setAuthState(false)
             }
-            forceUpdate()
+          //  forceUpdate()
         })()
     }, [userData])
 
     return (
-        authState == false ? <AuthNavigator /> : <DrawerNavigator />
+        //authState == false ? <AuthNavigator /> : <DrawerNavigator />
+        authState  ? <DrawerNavigator /> : <AuthNavigator /> 
     );
 }

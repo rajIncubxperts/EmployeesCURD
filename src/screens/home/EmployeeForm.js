@@ -5,10 +5,10 @@ import {
   StyleSheet,
   TextInput,
   Alert,
+  ScrollView
 } from 'react-native';
 import { COLORS , ROUTES} from '../../constants';
 import { SelectList } from 'react-native-dropdown-select-list';
-import { ScrollView } from 'react-native-gesture-handler';
 import Profile from './Profile';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,7 +16,7 @@ import moment from 'moment';
 import CreateEmpHeader from '../../components/CreateEmpHeader';
 import { useNavigation } from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { useSelector, useDispatch, shallowEqual } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { errorFormHandler } from '../../Redux/actions/AuthAction';
 import { createEmployeeAction, loadingState } from './../../Redux/actions/EmployeeAction';
 import { useFocusEffect } from '@react-navigation/native';
@@ -31,7 +31,7 @@ import { BASE_URL } from '../../Config/config';
 const EmployeeForm = props => {
   const navigation = useNavigation();
 
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = useState("");
   const [jobDesc, setJobDesc] = useState("");
   const [text, setText] = React.useState("");
@@ -56,11 +56,12 @@ const EmployeeForm = props => {
     uri: '',
     type: '',
     tempObj: ''
+
   });
   const { editEmployeeData, isLoading } = useSelector(state => state.EmployeeReducer);
   const { errorForm } = useSelector(state => state.AuthReducer);
-
-
+  // const {ItemId} = props.route.params;
+  // console.log('finally item id is:::::<><><',props.route.params?.ItemId);
 
   const dispatch = useDispatch();
 
@@ -123,8 +124,9 @@ const EmployeeForm = props => {
               bloodGroup.filter(f => f.value == editEmployeeData?.bloodGroup)[0]
             )
             setDefaultCitySelected(
-              city.filter(f => f.value == editEmployeeData?.city)[0]
+              city.filter(f => f.value == editEmployeeData?.location)[0]
             )
+            // console.log('defaultCitySelected is::',defaultCitySelected,editEmployeeData?.city)
           }
         }, 500);
       }
@@ -134,9 +136,7 @@ const EmployeeForm = props => {
 
   // On date change method
   const onToDateChange = (event, selectedDate) => {
-    console.log('date testtttt', event, selectedDate);
     const currentDate = selectedDate || new Date();
-    console.log('Date', currentDate);
     setShowJoinDatePicker(false);
     setJoinDate(
       moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
@@ -145,23 +145,24 @@ const EmployeeForm = props => {
 
   // On date change method
   const onToDateChangeAction = (event, selectedDate) => {
-    console.log('date testtttt', event, selectedDate);
     const currentDate = selectedDate || new Date();
-    console.log('Date', currentDate);
     setShowSalaryDatePicker(false);
     setSrdonDate(
       moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
     );
   };
 
+
+
   const handleClick = () => {
+    debugger;
     var isError = false;
     var error = {};
-
-    if (!empImage) {
-      alert('Image is Reqire.')
-      return false
-    }
+    const reg = /^[0]?[789]\d{9}$/;
+    // if (!empImage) {
+    //   alert('Image is Reqire.')
+    //   return false
+    // }
     if (firstName == '') {
       error.firstName = "Field can't be empty.";
       isError = true;
@@ -172,6 +173,9 @@ const EmployeeForm = props => {
     }
     if (phone == '') {
       error.phone = "Field can't be empty.";
+      isError = true;
+    } else if (!reg.test(phone)) {
+      error.phone = 'Please enter valid number.';
       isError = true;
     }
     if (mobile == '') {
@@ -202,15 +206,17 @@ const EmployeeForm = props => {
       dispatch(errorFormHandler(error));
     } else {
       if (global.tempActionType == 'edit') {
-        <Spinner visible={isLoading} />
+      //  <Spinner visible={isLoading} />
+      // console.log('calling update handler')
         updateHandler();
         navigation.navigate(ROUTES.HOME_DRAWER);
-      
+
       } else {
-        <Spinner visible={isLoading} />
+        // console.log('calling save On click')
+       // <Spinner visible={isLoading} />
         saveHandler();
         navigation.navigate(ROUTES.HOME_DRAWER);
-      
+
       }
     }
   };
@@ -293,7 +299,7 @@ const EmployeeForm = props => {
   };
 
   const apiCallForUploadImage = async (uri, type, tempObj, id) => {
-    console.log("id-------   ", id);
+    //console.log("id-------   ", id);
     dispatch(loadingState(true))
     let formData = new FormData();
 
@@ -408,11 +414,35 @@ const EmployeeForm = props => {
       "salaryRevisionDate": srdonDate
     }
 
-    console.log("Update Employee", tempObj)
+    // const testObj = {
+    //   "isActive": true,
+    //   "createdBy": "string",
+    //   "createdAt": "2022-11-20T11:26:18.765Z",
+    //   "updatedBy": "string",
+    //   "updatedAt": "2022-11-20T11:26:18.765Z",
+    //   "id": global.empId,
+    //   "firstName": firstName,
+    //   "lastName": lastName,
+    //   "workPhone": phone,
+    //   "mobileNumber": mobile,
+    //   "bloodGroup": tempBlood,
+    //   "jobDesc": jobDesc,
+    //   "expertise": expertise,
+    //   "aboutme": aboutMe,
+    //   "location": tempCity,
+    //   "department": tempDept,
+    //   // "profileImage": empImage,
+    //   "joiningDate": joinDate,
+    //   "salaryRevisionDate": srdonDate
+    // }
+
+
+
+  //  console.log("Update Employee Test data", testObj)
     dispatch(updateEmployeeAction(tempObj, props))
 
   }
-
+// console.log("Global", global.tempActionType )
   return (
     <>
       <ScrollView>
@@ -428,10 +458,11 @@ const EmployeeForm = props => {
           updateImg={() => {
             addImage();
           }}
-          imagePass={empImage}
+          imagePass={empImage ? empImage : null}
         />
         <View style={{ margin: sizeWidth(3) }}>
           <View style={{ backgroundColor: COLORS.blue, padding: sizeWidth(2) }}>
+
             <Text
               style={{ fontSize: sizeFont(4), fontWeight: 'bold', color: COLORS.white }}>
               Basic Info
@@ -453,13 +484,14 @@ const EmployeeForm = props => {
                   }),
                 );
                 setFirstName(text.trim());
-                
+
               }}
               placeholderTextColor='grey'
               style={{ color: 'black' }}
+
             />
           </View>
-           {errorForm.firstName ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+           {errorForm.firstName ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null }
           <View
             style={[
               { borderColor: errorForm.lastName ? 'red' : null, borderWidth: 1 },
@@ -479,9 +511,9 @@ const EmployeeForm = props => {
               }}
               placeholderTextColor='grey'
               style={{ color: 'black' }}
-            /> 
+            />
           </View>
-          {errorForm.lastName ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+          {errorForm.lastName ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null }
           <View style={{ margin: sizeWidth(1) }} />
           <View style={{ backgroundColor: COLORS.blue, padding: sizeWidth(2) }}>
             <Text
@@ -531,13 +563,16 @@ const EmployeeForm = props => {
                     phone: '',
                   }),
                 );
-                setPhone(text.trim());
+                setPhone(text);
               }}
               placeholderTextColor='grey'
               style={{ color: 'black' }}
             />
           </View>
-          {errorForm.phone ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+          {errorForm.phone ? <Text style={{ color: 'red' }}>{errorForm.phone}</Text> : null }
+          {/* {errorForm.phome == null ? null : (
+            <Text style={{ color: 'red' }}>{errorForm.phone}</Text>
+          )} */}
           <View style={{ margin: sizeWidth(1) }} />
           <View
             style={[
@@ -627,7 +662,7 @@ const EmployeeForm = props => {
               style={{ color: 'black' }}
             />
           </View>
-          {errorForm.mobile ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+          {errorForm.mobile ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null }
           <View style={{ margin: sizeWidth(1) }} />
           <SelectList
             setSelected={val => setSelectBlood(val)}
@@ -663,13 +698,13 @@ const EmployeeForm = props => {
                     jobDesc: '',
                   }),
                 );
-                setJobDesc(text.trim());
+                setJobDesc(text);
               }}
               placeholderTextColor='grey'
               style={{ color: 'black' }}
             />
           </View>
-          {errorForm.jobDesc ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+          {errorForm.jobDesc ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null }
           <View
             style={[
               { borderColor: errorForm.expertise ? 'red' : null, borderWidth: 1 },
@@ -686,13 +721,13 @@ const EmployeeForm = props => {
                     expertise: '',
                   }),
                 );
-                setExpertise(text.trim());
+                setExpertise(text);
               }}
               placeholderTextColor='grey'
               style={{ color: 'black' }}
             />
           </View>
-          {errorForm.expertise ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+          {errorForm.expertise ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null }
           <View
             style={[
               { borderColor: errorForm.aboutMe ? 'red' : null, borderWidth: 1 },
@@ -700,7 +735,7 @@ const EmployeeForm = props => {
             ]}>
             <TextInput
               placeholder="About Me"
-              numberOfLines={4}
+              numberOfLines={3}
               multiline={true}
               value={aboutMe}
               onChangeText={text => {
@@ -710,13 +745,13 @@ const EmployeeForm = props => {
                     aboutMe: '',
                   }),
                 );
-                setAboutMe(text.trim());
+                setAboutMe(text);
               }}
               placeholderTextColor='grey'
               style={{ color: 'black' }}
             />
           </View>
-          {errorForm.aboutMe ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
+          {errorForm.aboutMe ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null }
         </View>
       </ScrollView>
       {showJoinDatePicker ? (
@@ -724,11 +759,12 @@ const EmployeeForm = props => {
           testID="dateTimePicker"
           value={new Date()}
           mode={'date'}
-          maximumDate={new Date()}
           is24Hour={false}
           display="default"
           useCurrent={false}
           onChange={onToDateChange}
+          minimumDate={new Date()}
+          maximumDate={new Date(2040, 10, 20)}
         />
       ) : null}
       {showSalaryDatePicker ? (
@@ -736,11 +772,14 @@ const EmployeeForm = props => {
           testID="dateTimePicker"
           value={new Date()}
           mode={'date'}
-          maximumDate={new Date()}
           is24Hour={false}
           display="default"
           useCurrent={false}
           onChange={onToDateChangeAction}
+          borderRadius={10}
+          textColor={'red'}
+          minimumDate={new Date(2020, 0, 1)}
+          maximumDate={new Date()}
         />
       ) : null}
     </>
@@ -761,9 +800,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 10, height: 10 },
   },
   mainBox: {
-    alignItems: 'center',
-    alignContent: 'center',
-    flexDirection: 'row',
     borderWidth: 1,
     borderRadius: 10,
     width: '100%',

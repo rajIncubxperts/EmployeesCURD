@@ -13,7 +13,6 @@ import { EmployeeForm, Home, EmployeeDetails } from '../screens';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomDrawer from '../components/CustomDrawer';
 import { sizeWidth } from '../Utils/Size';
 
@@ -85,27 +84,6 @@ function DrawerNavigator() {
           headerStyle: {
             backgroundColor: COLORS.blue,
           },
-
-          headerRight: () => (
-            <View style={{ flexDirection: 'row' }}>
-              <MaterialCommunityIcons.Button
-                name="pencil"
-                size={25}
-                marginRight={5}
-                backgroundColor={COLORS.blue}
-                color={COLORS.white}
-                onPress={() => Alert.alert('Edit')}
-              />
-
-              <FontAwesome5.Button
-                name="trash"
-                backgroundColor={COLORS.blue}
-                marginRight={5}
-                color={COLORS.white}
-                onPress={() => Alert.alert('trash')}
-              />
-            </View>
-          ),
         }}
       />
     </Drawer.Navigator>

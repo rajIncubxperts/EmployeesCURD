@@ -3,19 +3,11 @@ import {
   StyleSheet,
   View,
   Text,
-  StatusBar,
   TouchableOpacity,
-  Alert,
   Dimensions,
 } from 'react-native';
-import { ROUTES, COLORS } from '../constants';
+import { COLORS } from '../constants';
 import { deleteEmployeeAction } from '../Redux/actions/EmployeeAction';
-import { useSelector, useDispatch } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
-import Spinner from 'react-native-loading-spinner-overlay';
-import { authResponseData } from './../../Redux/actions/AuthAction';
 import { sizeWidth } from '../Utils/Size';
 import { sizeFont } from './../Utils/Size';
 

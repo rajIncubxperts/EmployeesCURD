@@ -8,9 +8,9 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import {ROUTES, COLORS} from '../constants';
+import { COLORS} from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useSelector, useDispatch} from 'react-redux';
+import { useDispatch} from 'react-redux';
 import {authResponseData} from './../Redux/actions/AuthAction';
 import {useState} from 'react';
 import {useCallback} from 'react';
@@ -30,7 +30,7 @@ const SimpleModal = props => {
   const signOutHandler = async () => {
     await AsyncStorage.removeItem('userInfo');
     await dispatch(authResponseData(null));
-    forceUpdate();
+                            // forceUpdate();
   };
 
   return (

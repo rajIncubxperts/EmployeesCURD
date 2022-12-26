@@ -8,19 +8,13 @@ import {
 } from '../screens';
 import {COLORS, ROUTES} from '../constants';
 import DrawerNavigator from './DrawerNavigator';
-import Splash from '../screens/home/Splash';
 
 const Stack = createStackNavigator();
-// Navigator, Screen, Group
 
 function AuthNavigator() {
   return (
-    <Stack.Navigator screenOptions={{}} initialRouteName="Splash">
-      <Stack.Screen
-        name={'Splash'}
-        component={Splash}
-        options={{headerShown: false}}
-      />
+    <Stack.Navigator screenOptions={{}} initialRouteName={ROUTES.LOGIN}>
+
       <Stack.Screen
         name={ROUTES.HOME}
         component={DrawerNavigator}
@@ -29,30 +23,16 @@ function AuthNavigator() {
       <Stack.Screen
         name={ROUTES.EMPLOYEEFORM}
         component={EmployeeForm}
-        options={{
-          title: 'Employee Form',
-          headerRight: () => (
-            <Button
-              onPress={() => alert('This is a button!')}
-              title="Save"
-              color="red"
-            />
-          ),
-        }}
       />
       <Stack.Screen
         name={ROUTES.EMPLOYEEDETAILS}
         component={EmployeeDetails}
-        
-        options={{
-          title: 'Yogeshwar Aher',
-          headerShown: true,
-        }}
       />
       <Stack.Screen
         name={ROUTES.LOGIN}
         component={Login}
         options={{
+          unmountOnBlur: true,
           title: 'React Native API',
           headerTintColor: COLORS.white,
           headerStyle: {

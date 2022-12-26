@@ -1,11 +1,11 @@
 import { GET_EMPLOYEE_DATA, EDIT_EMPLOYEE_DATA, GET_WORK_EMPLOYEE_DATA,LOADING, LISTLOADING } from '../Types/types';
 
 const initialState = {
-  employeeData: {pageSize: 0, pageNum: 0, result:[]},
+  employeeData: {pageSize: 0, pageNum: 0, result:[], endOfList: false},
   editEmployeeData: null,
   isLoading: false,
   listLoading: false,
-  workDataGet: null
+  workDataGet: null,
 };
 
 const EmployeeReducer = (state = initialState, action) => {

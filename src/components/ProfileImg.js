@@ -2,31 +2,41 @@ import React, {useState, useEffect} from 'react';
 import {
   Image,
   View,
-  TouchableOpacity,
-  Text,
   StyleSheet,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import {sizeWidth} from '../Utils/Size';
 
 const ProfileImg = props => {
-  const [image, setImage] = useState(null);
-
   useEffect(() => {}, [props.imagePass]);
 
   return (
     <SafeAreaView>
       <View style={imageUploaderStyles.container}>
-        {props.imagePass && (
-          <Image
+    
+          {props.imagePass ?
+            <Image
+              style={{
+                elevation: 2,
+                borderRadius: 999,
+                overflow: 'hidden',
+                height: sizeWidth(30),
+                width: sizeWidth(30),
+              }}
+              source={{uri: props.imagePass}}
+            /> : <Image
             style={{
-              height: 150,
-              width: 150,
+              elevation: 2,
+              borderRadius: 999,
+              overflow: 'hidden',
+              height: sizeWidth(30),
+              width: sizeWidth(30),
             }}
-            source={{uri: props.imagePass}}
+            source={require('../assets/corporate.png')}
           />
-        )}
+           }
+    
       </View>
     </SafeAreaView>
   );
@@ -34,13 +44,12 @@ const ProfileImg = props => {
 
 const imageUploaderStyles = StyleSheet.create({
   container: {
+    height: sizeWidth(30),
+    width: sizeWidth(30),
     elevation: 2,
-    height: 100,
-    width: 110,
     backgroundColor: '#efefef',
     position: 'relative',
     borderRadius: 999,
-    overflow: 'hidden',
     alignSelf: 'center',
     margin: 8,
   },

@@ -17,13 +17,13 @@ import {
 import {COLORS, IMGS, ROUTES} from '../../constants';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+// import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import TitleHeader from '../../components/TitleHeader';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import { errorFormHandler } from '../../Redux/actions/AuthAction';
-
+import DateTimePicker from "react-native-modal-datetime-picker";
 import Spinner from 'react-native-loading-spinner-overlay';
 import {
   editEmployeeAction,
@@ -79,8 +79,8 @@ const EmployeeDetails = ({title, route, navigation}) => {
 
   const [modalprevComp, setModalPrevComp] = useState('');
   const [modalJobTit, setModalJobTit] = useState('');
-  const [modalworkFromDt, setModalWorkFromDt] = useState('');
-  const [modalworkToDt, setModalWorkToDt] = useState('');
+  const [modalworkFromDt, setModalWorkFromDt] = useState("");
+  const [modalworkToDt, setModalWorkToDt] = useState("");
   const [empExpId, setEmpExpId] = useState('');
   const [empGetData, setempGetData] = useState([]);
   const [AddOrEdit,setAddOrEdit] = useState('add');
@@ -100,36 +100,36 @@ const EmployeeDetails = ({title, route, navigation}) => {
   const changeModalVisible = bool => {
     setisModalVisible(bool);
   };
-  // On date change method
-  const onToDateChange = (event, selectedDate) => {
-    console.log('date testtttt', event, selectedDate);
-    const currentDate = selectedDate || new Date();
-    console.log('Date', currentDate);
-    setShowJoinDatePicker(false);
-    setModalWorkFromDt(
-      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
-    );
-    setJoinDate(
-      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
-    );
+
+  const hideDatePicker = () => {
+    setShowJoinDatePicker(false)
+  }
+  
+  const handleConfirm = (date) => {
+    let finalDate = moment(date, 'DD-MM-YYYY').toISOString().substring(0, 10)
+    setModalWorkFromDt(finalDate);
+    hideDatePicker();
   };
 
-  // On date change method
-  const onToDateChangeAction = (event, selectedDate) => {
-    console.log('date testtttt', event, selectedDate);
-    const currentDate = selectedDate || new Date();
-    console.log('Date', currentDate);
+  const hideSalaryDatePicker = () => {
     setShowSalaryDatePicker(false);
-    setModalWorkToDt(
-      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
-    );
-    setSrdonDate(
-      moment(currentDate, 'DD-MM-YYYY').toISOString().substring(0, 10),
-    );
+  }
+ 
+  const handleSalaryConfirm = (date) => {
+    let finalDate = moment(date, 'DD-MM-YYYY').toISOString().substring(0, 10)
+    setModalWorkToDt(finalDate);
+    hideSalaryDatePicker();
   };
+  
+
   useEffect(() => {
+  //   let today = new Date()
+  // setModalWorkFromDt(today);
+  // setModalWorkToDt(today);
     dispatch(errorFormHandler({}));
-  }, []);
+
+  //  console.log("date Here ::", today)
+  }, [])
 
   const updateModalHandler = async () => {
 
@@ -155,9 +155,10 @@ const EmployeeDetails = ({title, route, navigation}) => {
     if (isError) {
       dispatch(errorFormHandler(error));
     }else{
-      const dataDel = {
-        id: empExpId
-      }
+      console.log("dateDel")
+      // const dataDel = {
+      //   id: empExpId
+      // }
       
       const data = {
         id: empExpId,
@@ -169,7 +170,6 @@ const EmployeeDetails = ({title, route, navigation}) => {
         isActive: true,
       };  
       if (AddOrEdit == 'edit') {
-        //   await dispatch(updateWorkAction(data));
         setModalVisible(false);
       await dispatch(updateWorkAction(data));
       
@@ -185,27 +185,22 @@ const EmployeeDetails = ({title, route, navigation}) => {
         };
         await dispatch(addWorkAction(data));
         setModalVisible(false);
-      }else{
-        await dispatch(updateWorkAction(dataDel));
       }
+      // else{
+      //   await dispatch(updateWorkAction(dataDel));
+      // }
     }
    
   }
 
 const remove = async () => {
-  //debugger;
   const dataDel = {
     id: empExpId,
     employeeId: global.empId,
     isActive:false
   }
-  if(workDataGet == 0){
-  console.log("Checking Delete is working or not")
-  }else{
-    await dispatch(updateWorkAction(dataDel));
-}
-//  await dispatch(updateWorkAction(dataDel));
-//  console.log("Date Work E", dataDel)
+  console.log('dataDele is ::',dataDel)
+await dispatch(updateWorkAction(dataDel));
 }
 
 
@@ -275,19 +270,21 @@ const remove = async () => {
         setempGetData(res.data.result);
       })
       .catch(e => {
-        console.log(`Get Employee error ${e}`);
+        console.log(`Get Employee WorkExp eDerror ${e}`);
       });
   };
   const handleClicks = item => {
-    setListItem(item);
+    setListItem(route.params?.item);
     setisModalVisible(true);
+    console.log("Item ::" , item);
+    console.log("SetListItem ::",  setListItem(route.params?.item?.id))
   };
 
   const handleEdits = item => {
     {
       global.actionType = 'edit';
       global.tempActionType = 'edit';
-      global.empId = item?.id;
+      global.empId = route.params?.item?.id;
       navigation.navigate(ROUTES.EMPLOYEEFORM_DRAWER);
     }
   };
@@ -409,11 +406,11 @@ const remove = async () => {
             <View
               style={{
                 backgroundColor: COLORS.blue,
-                padding: 10,
+                padding: sizeWidth(2),
                 marginHorizontal: 10,
               }}>
               <Text
-                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
+                style={{fontSize: sizeFont(4), fontWeight: 'bold', color: COLORS.white}}>
                 Work
               </Text>
             </View>
@@ -443,7 +440,7 @@ const remove = async () => {
                 }`}
               </Text>
               <Text style={styles.textcolor}>
-                <Text style={{fontWeight: 'bold'}}>Salary Revision Due On</Text>
+                <Text style={{fontWeight: 'bold'}}> Salary Revision Due On</Text>
                 -{' '}
                 {`${
                   editEmployeeData?.salaryRevisionDate == undefined
@@ -467,11 +464,11 @@ const remove = async () => {
             <View
               style={{
                 backgroundColor: COLORS.blue,
-                padding: 10,
+                padding: sizeWidth(2),
                 marginHorizontal: 10,
               }}>
               <Text
-                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
+                style={{fontSize: sizeFont(4), fontWeight: 'bold', color: COLORS.white}}>
                 Personal
               </Text>
             </View>
@@ -497,11 +494,11 @@ const remove = async () => {
             <View
               style={{
                 backgroundColor: COLORS.blue,
-                padding: 10,
+                padding: sizeWidth(2),
                 marginHorizontal: 10,
               }}>
               <Text
-                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
+                style={{fontSize: sizeFont(4), fontWeight: 'bold', color: COLORS.white}}>
                 Summary
               </Text>
             </View>
@@ -536,11 +533,11 @@ const remove = async () => {
             <View
               style={{
                 backgroundColor: COLORS.blue,
-                padding: 10,
+                padding: sizeWidth(2),
                 marginHorizontal: 10,
               }}>
               <Text
-                style={{fontSize: 16, fontWeight: 'bold', color: COLORS.white}}>
+                style={{fontSize: sizeFont(4), fontWeight: 'bold', color: COLORS.white}}>
                 Work Experience
               </Text>
             </View>
@@ -577,7 +574,9 @@ const remove = async () => {
           </View>
 
           {/** This is our modal component containing textinput and a button */}
+      
           <Modal
+          propagateSwipe={true}
             animationType="slide"
             transparent
             visible={isModalVisible}
@@ -590,35 +589,46 @@ const remove = async () => {
                     ? 'Update Experince'
                     : 'Add Experince'}
                 </Text>
+                
             <View>
             <TextInput
                   placeholder="Previous Company"
                   value={modalprevComp}
                   style={styles.textInput}
-                  //onChangeText={value => setModalPrevComp(value)}
-                  onChangeText={text => {
+                  onChangeText={value => {
                     dispatch(
                       errorFormHandler({
                         ...errorForm,
                         modalprevComp: '',
                       }),
                     );
-                    setFirstName(text.trim());
+                    setModalPrevComp(value);
                     
                   }}
                   placeholderTextColor="grey"
                 />
 
             </View>
-            {errorForm.modalprevComp ? <Text style={{ color: 'red' }}>{ "Field can't be empty"}</Text> : null } 
-                <TextInput
+            {errorForm.modalprevComp ? <Text style={{ color: 'red',  alignSelf:'flex-start',  marginLeft:20, marginBottom:5 }}>{ "Field can't be empty"}</Text> : null } 
+               <View>
+               <TextInput
                   placeholder="Job Title"
                   value={modalJobTit}
                   style={styles.textInput}
-                  onChangeText={value => setModalJobTit(value)}
+                  onChangeText={value => {
+                    dispatch(
+                      errorFormHandler({
+                        ...errorForm,
+                        modalJobTit: '',
+                      }),
+                    );
+                    setModalJobTit(value);
+                  }}
                   placeholderTextColor="grey"
                 />
 
+               </View>
+               {errorForm.modalJobTit ? <Text style={{ color: 'red', alignSelf:'flex-start',  marginLeft:20, marginBottom:5  }}>{ "Field can't be empty"}</Text> : null } 
                 <View
                   onTouchEndCapture={() => {
                     setShowJoinDatePicker(true);
@@ -629,10 +639,17 @@ const remove = async () => {
                     style={styles.textInputDate}
                     value={modalworkFromDt}
                     onChangeText={text => {
-                      setModalWorkFromDt(text);
+                      dispatch(
+                        errorFormHandler({
+                          ...errorForm,
+                          modalworkFromDt : "",
+                        }),
+                      );
+                      setModalWorkToDt(text);
                     }}
                   />
                 </View>
+                {errorForm.modalworkFromDt ? <Text style={{ color: 'red', alignSelf:'flex-start',  marginLeft:20, marginBottom:5  }}>{ "Field can't be empty"}</Text> : null } 
                 <View
                   onTouchEndCapture={() => {
                     setShowSalaryDatePicker(true);
@@ -642,12 +659,19 @@ const remove = async () => {
                     value={modalworkToDt}
                     style={[styles.textInputbottom]}
                     onChangeText={text => {
+                      dispatch(
+                        errorFormHandler({
+                          ...errorForm,
+                          modalworkToDt: '',
+                        }),
+                      );
                       setModalWorkToDt(text);
+                      
                     }}
                     placeholderTextColor="grey"
                   />
                 </View>
-
+                {errorForm.modalworkToDt ? <Text style={{ color: 'red', alignSelf:'flex-start',  marginLeft:20, marginBottom:40  }}>{ "Field can't be empty"}</Text> : null } 
                 <TouchableOpacity 
                   style={styles.btnOkModal}
                   onPress={() => updateModalHandler()
@@ -666,35 +690,27 @@ const remove = async () => {
                   }}>
                   <Text style={{color: COLORS.blue}}>CANCEL</Text>
                 </TouchableOpacity>
+                <DateTimePicker
+                  isVisible={showJoinDatePicker}
+                  mode="date"
+                  onConfirm={handleConfirm}
+                  onCancel={hideDatePicker}
+                  minimumDate={new Date()}
+                  maximumDate={new Date(2040, 10, 20)}
+                />
+                <DateTimePicker
+                  isVisible={showSalaryDatePicker}
+                  mode="date"
+                  onConfirm={handleSalaryConfirm}
+                  onCancel={hideSalaryDatePicker}
+                  maximumDate={new Date()}
+                />
               </View>
             </View>
+            
           </Modal>
         </View>
       </SafeAreaView>
-      {showJoinDatePicker ? (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={new Date()}
-          mode={'date'}
-          maximumDate={new Date()}
-          is24Hour={false}
-          display="default"
-          useCurrent={false}
-          onChange={() => onToDateChange()}
-        />
-      ) : null}
-      {showSalaryDatePicker ? (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={new Date()}
-          mode={'date'}
-          maximumDate={new Date()}
-          is24Hour={false}
-          display="default"
-          useCurrent={false}
-          onChange={() => onToDateChangeAction()}
-        />
-      ) : null}
     </>
   );
 };
@@ -796,7 +812,7 @@ const styles = StyleSheet.create({
     left: '50%',
     elevation: 5,
     transform: [{translateX: -(width * 0.4)}, {translateY: -90}],
-    height: 330,
+    height: 390,
     width: width * 0.8,
     backgroundColor: '#fff',
     borderRadius: 7,
@@ -829,7 +845,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderColor: 'rgba(0, 0, 0, 0.2)',
     borderWidth: 1,
-    marginBottom: 70,
+    marginBottom: 8,
     paddingRight: 85,
     color: 'black',
   },
@@ -854,16 +870,20 @@ const styles = StyleSheet.create({
     right: 35,
   },
   txtborder: {
-    backgroundColor: COLORS.grayLight,
+    backgroundColor: '#faf7ed',
     shadowColor: '#000000',
     paddingLeft: 15,
     shadowOpacity: 0.8,
     color: COLORS.black,
+    paddingBottom:7,
     shadowRadius: 2,
-    shadowOffset: {
-      height: 1,
-      width: 1,
-    },
+    elevation:10,
+    shadowColor: '#171717',
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+
+    marginHorizontal: 10,
   },
   buttons: {
     backgroundColor: COLORS.primary,

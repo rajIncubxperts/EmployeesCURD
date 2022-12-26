@@ -14,32 +14,76 @@ import { sizeWidth } from './../../Utils/Size';
 
 const Profile = props => {
   const [image, setImage] = useState(null);
+  const [showDefault, setShowDefault] = useState(true);
 
   useEffect(() => { }, [props.imagePass]);
+// initially showDefault will be false
+//var icon = showDefault ? {uri: props.imagePass } : require('../../assets/f8dc8046aa60d65fbe068ac408c04ebf.jpg');
+//console.log("Icon Set here", props.imagePass);
 
+const handelSubmit = () => {
+  props.updateImg()
+}
   return (
+    
     <SafeAreaView>
       <View style={imageUploaderStyles.container}>
-        {props.imagePass && (
+     
+  {/* <View>
+       <Image  
+      style={{ elevation: 2,
+        borderRadius: 999,
+        overflow: "hidden",
+        height: sizeWidth(30),
+        width: sizeWidth(30),
+        backgroundColor:'red'}}
+      source={require("../../assets/f8dc8046aa60d65fbe068ac408c04ebf.jpg")}
+      /> 
+  </View> */}
+
+{/* <Image
+            style={{
+              elevation: 2,
+              borderRadius: 999,
+              overflow: 'hidden',
+              height: sizeWidth(30),
+              width: sizeWidth(30),
+              backgroundColor: 'red',
+            }}
+            source={require('../assets/f8dc8046aa60d65fbe068ac408c04ebf.jpg')}
+          /> */}
+
           <View style={{
             elevation: 2,
             borderRadius: 999,
             overflow: "hidden",
             height: sizeWidth(30),
             width: sizeWidth(30),
+            //backgroundColor:'red'
           }} >
+          {props.imagePass ? 
             <Image
+              onLoadStart={() => 
+                setShowDefault(true)} 
               style={{
                 height: sizeWidth(30),
                 width: sizeWidth(30),
               }}
-              source={{ uri: props.imagePass }}
-            />
+           source= {{ uri: props.imagePass } }
+            /> : <Image
+            onLoadStart={() => 
+              setShowDefault(true)} 
+            style={{
+              height: sizeWidth(30),
+              width: sizeWidth(30),
+            }}
+            source={require('../../assets/Profile.jpg')}
+          />}
           </View>
-        )}
+
         <View style={imageUploaderStyles.uploadBtnContainer}>
           <TouchableOpacity
-            onPress={() => props.updateImg()}
+            onPress={handelSubmit}
             style={imageUploaderStyles.uploadBtn}>
             <MaterialIcons name="edit" size={20} color="black" />
           </TouchableOpacity>
@@ -59,6 +103,7 @@ const imageUploaderStyles = StyleSheet.create({
     borderRadius: 999,
     alignSelf: 'center',
     margin: 8,
+    // backgroundColor:'red'
   },
   uploadBtnContainer: {
     alignItems: "center",
